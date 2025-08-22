@@ -34,20 +34,19 @@ export class SalidaComponent {
     if (this.formularioSalida.valid) {
       const nuevoTicket: Ticket = this.formularioSalida.value;
 
-      this.ticketService.createTicket(nuevoTicket).subscribe({
+      this.ticketService.updateTicket(nuevoTicket.codigoBarrasQR ,nuevoTicket).subscribe({
         next: (respuesta) => {
           console.log('Ticket creado con éxito', respuesta);
 
           // ✅ Aviso de éxito
-          this.mensajeService.success('El ticket se registró correctamente ✅');
+          this.mensajeService.success('La salida se registro correctamente ✅');
 
           this.formularioSalida.reset();
         },
         error: (error) => {
-          console.error('Error al crear el ticket', error);
 
           // ❌ Aviso de error al fallar la API
-          this.mensajeService.error('Ocurrió un error al registrar el ticket');
+          this.mensajeService.error('Ocurrió un error al registrar la salida');
         },
       });
     } else {

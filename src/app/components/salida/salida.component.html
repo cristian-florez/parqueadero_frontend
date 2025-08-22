@@ -13,14 +13,18 @@
           </div>
         </div>
         <!-- Placa -->
-        <div class="mb-3">
+        <div formGroupName="vehiculo" class="mb-3">
           <label for="placa" class="form-label">Placa</label>
-          <input type="text" class="form-control" id="placa" placeholder="Ej: ABC-123" required formControlName="placa">
-        </div>
-        <div *ngIf="formularioSalida.get('vehiculo.placa')?.touched && formularioSalida.get('vehiculo.placa')?.hasError('required')" class="text-danger">
-            La placa es obligatoria
-        </div>
+          <input type="text"
+                class="form-control"
+                id="placa"
+                placeholder="Ej: ABC-123"
+                formControlName="placa">
 
+          <div *ngIf="formularioSalida.get('vehiculo.placa')?.touched && formularioSalida.get('vehiculo.placa')?.hasError('required')" class="text-danger">
+            La placa es obligatoria
+          </div>
+        </div>
         <!-- Fecha de salida -->
         <div class="mb-3">
           <label for="fechaHoraSalida" class="form-label">Fecha de Salida</label>

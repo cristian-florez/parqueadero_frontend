@@ -48,8 +48,8 @@ export class TicketService {
   // ===============================
   // 4. Actualizar un ticket por ID
   // ===============================
-  updateTicket(id: number, ticket: Ticket): Observable<Ticket> {
-    return this.http.put<Ticket>(`${this.apiUrl}/${id}`, ticket);
+  updateTicket(codigo: String, ticket: Ticket): Observable<Ticket> {
+    return this.http.put<Ticket>(`${this.apiUrl}/${codigo}`, ticket);
   }
 
   // ===============================
