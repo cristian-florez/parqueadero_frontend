@@ -21,10 +21,7 @@ export class EntradaComponent {
     this.formularioEntrada = this.fb.group({
       codigoBarrasQR: ['', Validators.required],
       fechaHoraEntrada: ['', Validators.required],
-      fechaHoraSalida: [''],
-      pagado: [false],
       usuarioRecibio: ['', Validators.required],
-      usuarioEntrego: [''],
       vehiculo: this.fb.group({
         placa: ['', Validators.required],
         tipo: ['', Validators.required]
