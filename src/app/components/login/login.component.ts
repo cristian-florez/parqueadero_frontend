@@ -15,12 +15,12 @@ import { MensajeService } from '../../services/mensaje.service';
 })
 export class LoginComponent {
   formularioLogin: FormGroup;
+  error: string | null = null;
 
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private usuarioService: UsuarioService,
-    private mensaje: MensajeService,
+    private usuarioService: UsuarioService
   ) {
     this.formularioLogin = this.fb.group({
       nombre: ['', Validators.required],
@@ -32,15 +32,15 @@ export class LoginComponent {
     if (this.formularioLogin.valid) {
       const credenciales: Usuario = this.formularioLogin.value;
 
-      this.usuarioService.login(credenciales.nombre, credenciales.cedula).subscribe((isLoggedIn) => {
-        if (isLoggedIn) {
-          this.router.navigate(['/tabla']);
-        } else {
-          this.mensaje.error ('Credenciales incorrectas. Por favor, inténtelo de nuevo.');
-        }
-      });
+      this.usuarioService
+        .login(credenciales.nombre, credenciales.cedula)
+        .subscribe((isLoggedIn) => {
+          if (isLoggedIn) {
+            this.router.navigate(['/tabla']);
+          } else {
+            this.error= 'Credenciales incorrectas. Por favor, inténtelo de nuevo.';
+          }
+        });
     }
-    }
-
-
+  }
 }

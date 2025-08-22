@@ -1,29 +1,45 @@
-<div class="login-container">
-  <div class="login-card">
-    <h2>Iniciar Turno</h2>
-    <p>Por favor, ingrese sus credenciales para continuar.</p>
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-      <div class="input-group">
-        <label for="nombre">Nombre</label>
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
+  <div class="card shadow-lg p-4" style="max-width: 400px; width: 100%;">
+    <!-- Título -->
+    <h2 class="text-center mb-3">Iniciar Turno</h2>
+
+    <!-- Formulario -->
+    <form [formGroup]="formularioLogin" (ngSubmit)="onSubmit()">
+
+      <!-- Nombre -->
+      <div class="mb-3">
+        <label for="nombre" class="form-label">Nombre</label>
         <input
           id="nombre"
           type="text"
           formControlName="nombre"
+          class="form-control"
           placeholder="Ingrese su nombre completo"
         />
       </div>
-      <div class="input-group">
-        <label for="cedula">Cédula</label>
+
+      <!-- Cédula -->
+      <div class="mb-3">
+        <label for="cedula" class="form-label">Cédula</label>
         <input
           id="cedula"
-          type="text"
+          type="password"
           formControlName="cedula"
+          class="form-control"
           placeholder="Ingrese su número de cédula"
         />
       </div>
-      <button type="submit" [disabled]="loginForm.invalid">Ingresar</button>
-      
-      <div *ngIf="error" class="error-message">
+
+      <!-- Botón -->
+      <button
+        type="submit"
+        class="btn btn-primary w-100"
+        [disabled]="formularioLogin.invalid">
+        Ingresar
+      </button>
+
+      <!-- Mensaje de error -->
+      <div *ngIf="error" class="alert alert-danger mt-3 text-center">
         {{ error }}
       </div>
     </form>

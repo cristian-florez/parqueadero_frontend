@@ -1,19 +1,73 @@
-<header class="header">
-  <div class="logo">
-    <a routerLink="/tabla">Parqueadero App</a>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+  <div class="container-fluid">
+
+    <!-- Logo / Marca -->
+    <a class="navbar-brand fw-bold d-flex align-items-center" routerLink="/">
+      <i class="fas fa-car me-2"></i>
+      Parqueadero El Samán
+    </a>
+
+    <!-- Botón responsive -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Menú principal -->
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+
+        <!-- Tabla -->
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/tabla" routerLinkActive="active">
+            <i class="fas fa-table me-1"></i> Tabla
+          </a>
+        </li>
+
+        <!-- Entrada -->
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/entrada" routerLinkActive="active">
+            <i class="fas fa-sign-in-alt me-1"></i> Entrada
+          </a>
+        </li>
+
+        <!-- Salida -->
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/salida" routerLinkActive="active">
+            <i class="fas fa-sign-out-alt me-1"></i> Salida
+          </a>
+        </li>
+
+        <!-- Totales -->
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/total" routerLinkActive="active">
+            <i class="fas fa-coins me-1"></i> Totales
+          </a>
+        </li>
+      </ul>
+
+      <!-- Usuario logueado -->
+      <ul class="navbar-nav ms-3">
+        <ng-container *ngIf="usuario; else noUser">
+          <li class="nav-item d-flex align-items-center text-white me-2">
+            <i class="fas fa-user-circle me-1"></i> {{ usuario.nombre }}
+          </li>
+          <li class="nav-item">
+            <button class="btn btn-sm btn-outline-light" (click)="logout()">
+              <i class="fas fa-door-closed me-1"></i> Cerrar turno
+            </button>
+          </li>
+        </ng-container>
+
+        <!-- Si no hay usuario -->
+        <ng-template #noUser>
+          <li class="nav-item">
+            <a class="btn btn-sm btn-outline-light" routerLink="/login">
+              <i class="fas fa-sign-in-alt me-1"></i> Iniciar turno
+            </a>
+          </li>
+        </ng-template>
+      </ul>
+    </div>
   </div>
-  <nav class="nav">
-    <ul>
-      <li><a routerLink="/tabla" routerLinkActive="active">Vehículos</a></li>
-      <li><a routerLink="/entrada" routerLinkActive="active">Registrar Entrada</a></li>
-      <li><a routerLink="/salida" routerLinkActive="active">Registrar Salida</a></li>
-      <li><a routerLink="/total" routerLinkActive="active">Ver Total</a></li>
-    </ul>
-  </nav>
-  <div class="user-info">
-    <ng-container *ngIf="currentUser$ | async as user">
-      <span class="user-name">Turno de: {{ user.nombre }}</span>
-      <button (click)="logout()" class="logout-button">Cierre</button>
-    </ng-container>
-  </div>
-</header>
+</nav>

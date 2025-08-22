@@ -1,10 +1,11 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from './core/guards/auth.guard';
 import { LoginComponent } from './components/login/login.component';
+import { LoginGuard } from './core/guards/login.guard';
 
 export const routes: Routes = [
   // 1. Ruta de login (pública)
-  { path: 'login', component: LoginComponent },
+  { path: 'login', component: LoginComponent, canActivate: [LoginGuard] },
 
   // 2. Rutas protegidas por AuthGuard
   {

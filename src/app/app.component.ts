@@ -5,6 +5,8 @@ import { RouterOutlet } from '@angular/router';
 import { HeaderComponent } from './shared/components/header/header.component';
 import { FooterComponent } from './shared/components/footer/footer.component';
 import { LoaderComponent } from './shared/components/loader/loader.component';
+import { Usuario } from './models/usuario';
+import { UsuarioService } from './services/usuario.service';
 
 
 @Component({
@@ -21,9 +23,9 @@ import { LoaderComponent } from './shared/components/loader/loader.component';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  currentUser$: Observable<Usuario | null>;
+  usuarioActual$: Usuario | null;
 
   constructor(private usuarioService: UsuarioService) {
-    this.currentUser$ = this.usuarioService.currentUser$;
+    this.usuarioActual$ = this.usuarioService.getUsuarioActual();
   }
 }

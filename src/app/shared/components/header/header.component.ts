@@ -1,6 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
-import { Observable } from 'rxjs';
 import { Usuario } from '../../../models/usuario';
 import { UsuarioService } from '../../../services/usuario.service';
 import { CommonModule } from '@angular/common';
@@ -12,11 +11,15 @@ import { CommonModule } from '@angular/common';
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css'],
 })
-export class HeaderComponent {
-  currentUser$: Observable<Usuario | null>;
+export class HeaderComponent implements OnInit{
+  usuario: Usuario | null = null;
 
-  constructor(private usuarioService: UsuarioService, private router: Router) {
-    this.currentUser$ = this.usuarioService.currentUser$;
+  constructor(private usuarioService: UsuarioService, private router: Router) {}
+
+  ngOnInit(): void {
+    this.usuarioService.usuarioActual$.subscribe((user) => {
+      this.usuario = user;
+    });
   }
 
   logout(): void {

@@ -16,7 +16,13 @@ export class UsuarioService {
   private usuarioActualSubject = new BehaviorSubject<Usuario | null>(null);
   usuarioActual$ = this.usuarioActualSubject.asObservable();
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+      // Restaurar sesión si hay usuario guardado
+      const savedUser = localStorage.getItem('usuarioActual');
+      if (savedUser) {
+      this.usuarioActualSubject.next(JSON.parse(savedUser));
+    }
+  }
 
   // CRUD
   getUsuarios(): Observable<Usuario[]> {
