@@ -1,0 +1,31 @@
+<div class="login-container">
+  <div class="login-card">
+    <h2>Iniciar Turno</h2>
+    <p>Por favor, ingrese sus credenciales para continuar.</p>
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <div class="input-group">
+        <label for="nombre">Nombre</label>
+        <input
+          id="nombre"
+          type="text"
+          formControlName="nombre"
+          placeholder="Ingrese su nombre completo"
+        />
+      </div>
+      <div class="input-group">
+        <label for="cedula">Cédula</label>
+        <input
+          id="cedula"
+          type="text"
+          formControlName="cedula"
+          placeholder="Ingrese su número de cédula"
+        />
+      </div>
+      <button type="submit" [disabled]="loginForm.invalid">Ingresar</button>
+      
+      <div *ngIf="error" class="error-message">
+        {{ error }}
+      </div>
+    </form>
+  </div>
+</div>

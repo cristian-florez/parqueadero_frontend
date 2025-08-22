@@ -39,7 +39,6 @@ export class EntradaComponent {
 
       this.ticketService.createTicket(nuevoTicket).subscribe({
         next: (respuesta) => {
-          console.log("Ticket creado con éxito", respuesta);
 
           // ✅ Aviso de éxito
           this.mensajeService.success('El ticket se registró correctamente ✅');
@@ -47,7 +46,6 @@ export class EntradaComponent {
           this.formularioEntrada.reset();
         },
         error: (error) => {
-          console.error("Error al crear el ticket", error);
 
           // ❌ Aviso de error al fallar la API
           this.mensajeService.error('Ocurrió un error al registrar el ticket');

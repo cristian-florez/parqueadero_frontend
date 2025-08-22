@@ -1,27 +1,19 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
-  <div class="container-fluid">
-    <a class="navbar-brand" routerLink="/">
-      <i class="fas fa-lightbulb me-2"></i> 
-      Parqueadero El Saman
-    </a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav ms-auto">
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" routerLink="/tabla" routerLinkActive="active">Tabla</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/entrada" routerLinkActive="active">Entrada</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/salida" routerLinkActive="active">Salida</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/total" routerLinkActive="active">Totales</a>
-        </li>
-      </ul>
-    </div>
+<header class="header">
+  <div class="logo">
+    <a routerLink="/tabla">Parqueadero App</a>
   </div>
-</nav>
+  <nav class="nav">
+    <ul>
+      <li><a routerLink="/tabla" routerLinkActive="active">Vehículos</a></li>
+      <li><a routerLink="/entrada" routerLinkActive="active">Registrar Entrada</a></li>
+      <li><a routerLink="/salida" routerLinkActive="active">Registrar Salida</a></li>
+      <li><a routerLink="/total" routerLinkActive="active">Ver Total</a></li>
+    </ul>
+  </nav>
+  <div class="user-info">
+    <ng-container *ngIf="currentUser$ | async as user">
+      <span class="user-name">Turno de: {{ user.nombre }}</span>
+      <button (click)="logout()" class="logout-button">Cierre</button>
+    </ng-container>
+  </div>
+</header>

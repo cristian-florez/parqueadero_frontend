@@ -20,4 +20,10 @@ import { LoaderComponent } from './shared/components/loader/loader.component';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent {}
+export class AppComponent {
+  currentUser$: Observable<Usuario | null>;
+
+  constructor(private usuarioService: UsuarioService) {
+    this.currentUser$ = this.usuarioService.currentUser$;
+  }
+}
