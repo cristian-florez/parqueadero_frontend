@@ -1,0 +1,27 @@
+html, body {
+  height: 100%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+app-root {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+.snackbar-success {
+  background-color: #4caf50 !important;
+  color: white;
+}
+
+.snackbar-error {
+  background-color: #f44336 !important; 
+  color: white;
+}

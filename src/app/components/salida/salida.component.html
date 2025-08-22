@@ -1,0 +1,45 @@
+<div class="container mt-4">
+  <h3 class="mb-3">Salida de Vehículo</h3>
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <form>
+        <!-- Placa -->
+        <div class="mb-3">
+          <label for="placa" class="form-label">Placa</label>
+          <input type="text" class="form-control" id="placa" placeholder="Ej: ABC-123" required>
+        </div>
+
+        <!-- Fecha de salida -->
+        <div class="mb-3">
+          <label for="fechaSalida" class="form-label">Fecha de Salida</label>
+          <input type="date" class="form-control" id="fechaSalida" required>
+        </div>
+
+        <!-- Hora de salida -->
+        <div class="mb-3">
+          <label for="horaSalida" class="form-label">Hora de Salida</label>
+          <input type="time" class="form-control" id="horaSalida" required>
+        </div>
+
+        <!-- Estado de pago -->
+        <div class="mb-3">
+          <label for="estadoPago" class="form-label">Estado de Pago</label>
+          <select class="form-select" id="estadoPago" required>
+            <option value="">Seleccione...</option>
+            <option value="Pago">Pago</option>
+            <option value="Debe">Debe</option>
+          </select>
+        </div>
+
+        <!-- Usuario que registra la salida -->
+        <div class="mb-3">
+          <label for="usuarioSalida" class="form-label">Usuario que Registra</label>
+          <input type="text" class="form-control" id="usuarioSalida" placeholder="Nombre del encargado" required>
+        </div>
+
+        <!-- Botón -->
+        <button type="submit" class="btn btn-success w-100">Registrar Salida</button>
+      </form>
+    </div>
+  </div>
+</div>
