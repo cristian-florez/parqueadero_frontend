@@ -1,30 +1,32 @@
 <div class="container mt-4">
   <h3 class="mb-3">Registro de Vehículos</h3>
   <div class="table-responsive shadow-sm rounded">
-    <table class="table table-striped table-hover align-middle">
+    <table class="table table-hover align-middle border">
       <thead class="table-dark">
         <tr>
-          <th scope="col">Codigo</th>
-          <th scope="col">Tipo Vehículo</th>
-          <th scope="col">Placa</th>
-          <th scope="col">Fecha Entrada</th>
-          <th scope="col">Fecha Salida</th>
-          <th scope="col">Estado</th>
-          <th scope="col">Recibió</th>
-          <th scope="col">Entregó</th>
+          <th scope="col" class="border-end">Codigo</th>
+          <th scope="col" class="border-end">Tipo Vehículo</th>
+          <th scope="col" class="border-end">Placa</th>
+          <th scope="col" class="border-end">Fecha Entrada</th>
+          <th scope="col" class="border-end">Fecha Salida</th>
+          <th scope="col" class="border-end">Estado</th>
+          <th scope="col" class="border-end">Recibió</th>
+          <th scope="col" class="border-end">Entregó</th>
           <th scope="col">Total</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let ticket of tickets">
-          <td>{{ ticket.codigoBarrasQR }}</td>
-          <td>{{ ticket.vehiculo.tipo }}</td>
-          <td>{{ ticket.vehiculo.placa }}</td>
-          <td>{{ ticket.fechaHoraEntrada }}</td>
-          <td>{{ ticket.fechaHoraSalida }}</td>
-          <td><span class="badge" [ngClass]="{ 'bg-danger': ticket.pagado === false, 'bg-success': ticket.pagado === true }">{{ ticket.pagado }}</span></td>
-          <td>{{ ticket.usuarioRecibio }}</td>
-          <td>{{ ticket.usuarioEntrego }}</td>
+          <td class="border-end">{{ ticket.codigoBarrasQR }}</td>
+          <td class="border-end">{{ ticket.vehiculo.tipo }}</td>
+          <td class="border-end">{{ ticket.vehiculo.placa }}</td>
+          <td class="border-end">{{ ticket.fechaHoraEntrada | date: 'dd/MM/yyyy HH:mm' }}</td>
+          <td class="border-end">{{ ticket.fechaHoraSalida | date: 'dd/MM/yyyy HH:mm' }}</td>
+          <td class="border-end">
+            <span class="badge" [ngClass]="{ 'bg-danger': ticket.pagado === false, 'bg-success': ticket.pagado === true }">{{ ticket.pagado }}</span>
+          </td>
+          <td class="border-end">{{ ticket.usuarioRecibio }}</td>
+          <td class="border-end">{{ ticket.usuarioEntrego }}</td>
           <td>{{ ticket.pago?.total }}</td>
         </tr>
       </tbody>

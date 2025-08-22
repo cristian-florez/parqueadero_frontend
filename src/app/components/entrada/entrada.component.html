@@ -1,83 +1,74 @@
 <div class="container mt-4">
   <h3 class="mb-3">Entrada de Vehículo</h3>
-  <div class="card shadow-sm">
-    <div class="card-body">
-      <form [formGroup]="formularioEntrada" (ngSubmit)="onSubmit()">
+  <div class="card shadow-sm p-3">
+
+    <!-- Barra de información superior: Usuario y Hora -->
+    <div class="d-flex justify-content-between align-items-center mb-4 p-3 bg-light rounded">
+      <!-- Nombre del usuario -->
+      <div>
+        <span class="fw-bold">Usuario: </span>
+        <span class="h6 mb-0">{{ usuario?.nombre }}</span>
+      </div>
+
+      <!-- Hora de entrada -->
+    <div class="mb-3">
+      <label class="form-label mb-1 fw-bold">Hora de Entrada</label>
+        <div id="relojEntrada" class="p-2 border rounded text-center fw-bold reloj">
+          00:00:00
+        </div>
+    </div>
+
+    <!-- Formulario principal -->
+    <form [formGroup]="formularioEntrada" (ngSubmit)="onSubmit()">
+
+    <!-- Vehículo -->
+    <div formGroupName="vehiculo" class="row">
+
+      <!-- Tipo de vehículo -->
+      <div class="mb-3 col-6">
+        <label for="tipoVehiculo" class="form-label">Tipo de Vehículo</label>
+        <select class="form-select" id="tipoVehiculo" formControlName="tipo">
+          <option value="">Seleccione...</option>
+          <option value="Carro">Carro</option>
+          <option value="Moto">Moto</option>
+          <option value="Bicicleta">Bicicleta</option>
+        </select>
+        <div *ngIf="formularioEntrada.get('vehiculo.tipo')?.touched && formularioEntrada.get('vehiculo.tipo')?.hasError('required')" class="text-danger">
+          El tipo de vehículo es obligatorio
+        </div>
+      </div>
+
+      <!-- Placa -->
+      <div class="mb-3 col-6">
+        <label for="placa" class="form-label">Placa</label>
+        <input type="text" class="form-control" id="placa" placeholder="Ej: ABC-123" formControlName="placa">
+        <div *ngIf="formularioEntrada.get('vehiculo.placa')?.touched && formularioEntrada.get('vehiculo.placa')?.hasError('required')" class="text-danger">
+          La placa es obligatoria
+        </div>
+        <div *ngIf="formularioEntrada.get('vehiculo.placa')?.touched && formularioEntrada.get('vehiculo.placa')?.hasError('minlength')" class="text-danger">
+          La placa debe tener al menos 5 caracteres
+        </div>
+      </div>
+
+    </div>
 
         <!-- Código de barras -->
-        <div class="mb-3">
+        <div class="col-md-6">
           <label for="codigoBarrasQR" class="form-label">Código de Barras QR</label>
           <input type="text" class="form-control" id="codigoBarrasQR"
-                 placeholder="Ej: ABC123XYZ"
-                 formControlName="codigoBarrasQR">
+                placeholder="Ej: ABC123XYZ"
+                formControlName="codigoBarrasQR">
 
-          <div *ngIf="formularioEntrada.get('codigoBarrasQR')?.touched && formularioEntrada.get('codigoBarrasQR')?.hasError('required')" class="text-danger">
+          <div *ngIf="formularioEntrada.get('codigoBarrasQR')?.touched && formularioEntrada.get('codigoBarrasQR')?.hasError('required')" class="text-danger small">
             El código de barras es obligatorio
           </div>
-          <div *ngIf="formularioEntrada.get('codigoBarrasQR')?.touched && formularioEntrada.get('codigoBarrasQR')?.hasError('minlength')" class="text-danger">
+          <div *ngIf="formularioEntrada.get('codigoBarrasQR')?.touched && formularioEntrada.get('codigoBarrasQR')?.hasError('minlength')" class="text-danger small">
             El código debe tener al menos 5 caracteres
           </div>
         </div>
 
-        <!-- Fecha de entrada -->
-        <div class="mb-3">
-          <label for="fechaHoraEntrada" class="form-label">Fecha de Entrada</label>
-          <input type="datetime-local" class="form-control" id="fechaHoraEntrada"
-                 formControlName="fechaHoraEntrada">
-
-          <div *ngIf="formularioEntrada.get('fechaHoraEntrada')?.touched && formularioEntrada.get('fechaHoraEntrada')?.hasError('required')" class="text-danger">
-            La fecha de entrada es obligatoria
-          </div>
-        </div>
-
-        <!-- Usuario que recibe -->
-        <div class="mb-3">
-          <label for="usuarioRecibio" class="form-label">Usuario que Recibe</label>
-          <input type="text" class="form-control" id="usuarioRecibio"
-                 placeholder="Ej: María"
-                 formControlName="usuarioRecibio">
-
-          <div *ngIf="formularioEntrada.get('usuarioRecibio')?.touched && formularioEntrada.get('usuarioRecibio')?.hasError('required')" class="text-danger">
-            El usuario que recibe es obligatorio
-          </div>
-        </div>
-
-        <!-- Vehículo -->
-        <div formGroupName="vehiculo">
-          <!-- Tipo de vehículo -->
-          <div class="mb-3">
-            <label for="tipoVehiculo" class="form-label">Tipo de Vehículo</label>
-            <select class="form-select" id="tipoVehiculo" formControlName="tipo">
-              <option value="">Seleccione...</option>
-              <option value="Carro">Carro</option>
-              <option value="Moto">Moto</option>
-              <option value="Bicicleta">Bicicleta</option>
-            </select>
-
-            <div *ngIf="formularioEntrada.get('vehiculo.tipo')?.touched && formularioEntrada.get('vehiculo.tipo')?.hasError('required')" class="text-danger">
-              El tipo de vehículo es obligatorio
-            </div>
-          </div>
-
-          <!-- Placa -->
-          <div class="mb-3">
-            <label for="placa" class="form-label">Placa</label>
-            <input type="text" class="form-control" id="placa"
-                   placeholder="Ej: ABC-123"
-                   formControlName="placa">
-
-            <div *ngIf="formularioEntrada.get('vehiculo.placa')?.touched && formularioEntrada.get('vehiculo.placa')?.hasError('required')" class="text-danger">
-              La placa es obligatoria
-            </div>
-            <div *ngIf="formularioEntrada.get('vehiculo.placa')?.touched && formularioEntrada.get('vehiculo.placa')?.hasError('minlength')" class="text-danger">
-              La placa debe tener al menos 5 caracteres
-            </div>
-          </div>
-        </div>
-
-        <!-- Botón -->
-        <button type="submit" class="btn btn-primary w-100">Registrar Ticket</button>
-      </form>
-    </div>
+      <!-- Botón -->
+      <button type="submit" class="btn btn-primary w-100 mt-4">Registrar Ticket</button>
+    </form>
   </div>
 </div>

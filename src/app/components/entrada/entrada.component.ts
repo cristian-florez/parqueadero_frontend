@@ -1,8 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TicketService } from '../../services/ticket.service';
+import { UsuarioService } from '../../services/usuario.service';
 import { Ticket } from '../../models/ticket';
+import { Usuario } from '../../models/usuario';
 import { MensajeService } from '../../services/mensaje.service';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
@@ -11,48 +13,58 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
   selector: 'app-entrada',
   imports: [CommonModule, FormsModule, ReactiveFormsModule, MatSnackBarModule],
   templateUrl: './entrada.component.html',
-  styleUrls: ['./entrada.component.css']
+  styleUrls: ['./entrada.component.css'],
 })
-export class EntradaComponent {
-
+export class EntradaComponent implements OnInit{
   formularioEntrada: FormGroup;
 
-  constructor(private fb: FormBuilder, private ticketService: TicketService, private mensajeService: MensajeService) {
+  usuario: Usuario | null = null;
+
+  constructor(
+    private fb: FormBuilder,
+    private ticketService: TicketService,
+    private mensajeService: MensajeService,
+    private usuarioService: UsuarioService
+  ) {
     this.formularioEntrada = this.fb.group({
       codigoBarrasQR: ['', Validators.required],
-      fechaHoraEntrada: ['', Validators.required],
-      usuarioRecibio: ['', Validators.required],
       vehiculo: this.fb.group({
         placa: ['', Validators.required],
-        tipo: ['', Validators.required]
+        tipo: ['', Validators.required],
       }),
-      pago: [null]
+      pago: [null],
+    });
+  }
+
+  ngOnInit(): void {
+    this.usuarioService.usuarioActual$.subscribe((user) => {
+      this.usuario = user;
     });
   }
 
   onSubmit(): void {
     if (this.formularioEntrada.valid) {
       const nuevoTicket: Ticket = this.formularioEntrada.value;
+      nuevoTicket.usuarioRecibio = this.usuario?.nombre || '';
 
       this.ticketService.createTicket(nuevoTicket).subscribe({
         next: (respuesta) => {
-
           // ✅ Aviso de éxito
           this.mensajeService.success('El ticket se registró correctamente ✅');
 
           this.formularioEntrada.reset();
         },
         error: (error) => {
-
           // ❌ Aviso de error al fallar la API
           this.mensajeService.error('Ocurrió un error al registrar el ticket');
-        }
+        },
       });
     } else {
       // ❌ Aviso de error si el formulario está incompleto
-      this.mensajeService.error('Por favor complete todos los campos obligatorios');
+      this.mensajeService.error(
+        'Por favor complete todos los campos obligatorios'
+      );
       this.formularioEntrada.markAllAsTouched();
     }
   }
-
 }
