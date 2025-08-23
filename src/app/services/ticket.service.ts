@@ -10,10 +10,9 @@ import { Ticket } from '../models/ticket';
 import { Page } from '../core/types/page';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class TicketService {
-
   private apiUrl = `${environment.apiUrl}/tickets`;
 
   constructor(private http: HttpClient) {}
@@ -23,7 +22,7 @@ export class TicketService {
   // ===============================
   getTickets(page: number, size: number): Observable<Page<Ticket>> {
     return this.http.get<Page<Ticket>>(
-    `${this.apiUrl}?page=${page}&size=${size}`
+      `${this.apiUrl}?page=${page}&size=${size}`
     );
   }
 
@@ -38,6 +37,10 @@ export class TicketService {
     return this.http.get<Ticket>(`${this.apiUrl}/${id}`);
   }
 
+  getTicketByCodigo(codigo: string): Observable<Ticket> {
+    return this.http.get<Ticket>(`${this.apiUrl}/codigo/${codigo}`);
+  }
+
   // ===============================
   // 3. Crear un nuevo ticket
   // ===============================
@@ -48,8 +51,8 @@ export class TicketService {
   // ===============================
   // 4. Actualizar un ticket por ID
   // ===============================
-  updateTicket(codigo: String, ticket: Ticket): Observable<Ticket> {
-    return this.http.put<Ticket>(`${this.apiUrl}/${codigo}`, ticket);
+  updateTicket(codigo: string, ticket: Ticket): Observable<Ticket> {
+    return this.http.put<Ticket>(`${this.apiUrl}/salida/${codigo}`, ticket);
   }
 
   // ===============================

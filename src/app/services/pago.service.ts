@@ -11,10 +11,9 @@ import { Pago } from '../models/pago';
 
 // Decorador para indicar que es un servicio inyectable
 @Injectable({
-  providedIn: 'root' // Hace que el servicio esté disponible en toda la app
+  providedIn: 'root', // Hace que el servicio esté disponible en toda la app
 })
 export class PagoService {
-
   // URL base tomada desde el environment
   private apiUrl = `${environment.apiUrl}/pagos`;
 
@@ -54,5 +53,9 @@ export class PagoService {
   // ===============================
   deletePago(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  obtenerPago(codigo: string): Observable<Pago> {
+    return this.http.get<Pago>(`${this.apiUrl}/pago/${codigo}`);
   }
 }
