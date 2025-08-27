@@ -3,11 +3,15 @@
 // ==========================
 
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Ticket } from '../models/ticket';
 import { Page } from '../core/types/page';
+import { TicketCierreTurno } from '../models/cierreTurno';
+import { format } from 'date-fns';
+
+
 
 @Injectable({
   providedIn: 'root',
@@ -60,5 +64,19 @@ export class TicketService {
   // ===============================
   deleteTicket(id: number): Observable<Ticket> {
     return this.http.delete<Ticket>(`${this.apiUrl}/${id}`);
+  }
+
+  //
+  obtenerDatosCierre(inicio: Date, final: Date): Observable<TicketCierreTurno> {
+    const fechaInicio = format(inicio, "yyyy-MM-dd'T'HH:mm:ss");
+    const fechaFinal = format(final, "yyyy-MM-dd'T'HH:mm:ss");
+
+    const params = new HttpParams()
+      .set('inicio', fechaInicio)
+      .set('fin', fechaFinal);
+
+    return this.http.get<TicketCierreTurno>(`${this.apiUrl}/cierre-turno`, {
+      params,
+    });
   }
 }

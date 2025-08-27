@@ -33,9 +33,11 @@
         <label for="tipoVehiculo" class="form-label">Tipo de Vehículo</label>
         <select class="form-select" id="tipoVehiculo" formControlName="tipo">
           <option value="">Seleccione...</option>
-          <option value="Carro">Carro</option>
-          <option value="Moto">Moto</option>
-          <option value="Bicicleta">Bicicleta</option>
+          <option value="automovil">automovil</option>
+          <option value="moto">Moto</option>
+          <option value="turbo">turbo</option>
+          <option value="camion">camion</option>
+
         </select>
         <div *ngIf="formularioEntrada.get('vehiculo.tipo')?.touched && formularioEntrada.get('vehiculo.tipo')?.hasError('required')" class="text-danger">
           El tipo de vehículo es obligatorio
@@ -55,21 +57,6 @@
       </div>
 
     </div>
-
-        <!-- Código de barras -->
-        <div class="col-md-6">
-          <label for="codigoBarrasQR" class="form-label">Código de Barras QR</label>
-          <input type="text" class="form-control" id="codigoBarrasQR"
-                placeholder="Ej: ABC123XYZ"
-                formControlName="codigoBarrasQR">
-
-          <div *ngIf="formularioEntrada.get('codigoBarrasQR')?.touched && formularioEntrada.get('codigoBarrasQR')?.hasError('required')" class="text-danger small">
-            El código de barras es obligatorio
-          </div>
-          <div *ngIf="formularioEntrada.get('codigoBarrasQR')?.touched && formularioEntrada.get('codigoBarrasQR')?.hasError('minlength')" class="text-danger small">
-            El código debe tener al menos 5 caracteres
-          </div>
-        </div>
 
       <!-- Botón -->
       <button type="submit" class="btn btn-primary w-100 mt-4">Registrar Ticket</button>

@@ -11,10 +11,9 @@ import { Tarifa } from '../models/tarifa';
 
 // Decorador para indicar que es un servicio inyectable
 @Injectable({
-  providedIn: 'root' // Hace que el servicio esté disponible en toda la app
+  providedIn: 'root', // Hace que el servicio esté disponible en toda la app
 })
 export class TarifaService {
-
   // URL base tomada desde el environment
   private apiUrl = `${environment.apiUrl}/tarifas`;
 
@@ -54,5 +53,11 @@ export class TarifaService {
   // ===============================
   deleteTarifa(id: number): Observable<Tarifa> {
     return this.http.delete<Tarifa>(`${this.apiUrl}/${id}`);
+  }
+
+  obtenerPrecioPorTipoVehiculo(tipoVehiculo: string): Observable<number> {
+    return this.http.get<number>(`${this.apiUrl}/precio`, {
+      params: { tipoVehiculo },
+    });
   }
 }

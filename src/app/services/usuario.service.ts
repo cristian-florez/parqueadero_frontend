@@ -1,9 +1,10 @@
 // usuario.service.ts
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Usuario } from '../models/usuario';
+import { TicketCierreTurno } from '../models/cierreTurno';
 import { tap } from 'rxjs/operators';
 
 
@@ -17,9 +18,9 @@ export class UsuarioService {
   usuarioActual$ = this.usuarioActualSubject.asObservable();
 
   constructor(private http: HttpClient) {
-      // Restaurar sesión si hay usuario guardado
-      const savedUser = localStorage.getItem('usuarioActual');
-      if (savedUser) {
+    // Restaurar sesión si hay usuario guardado
+    const savedUser = localStorage.getItem('usuarioActual');
+    if (savedUser) {
       this.usuarioActualSubject.next(JSON.parse(savedUser));
     }
   }
@@ -47,14 +48,22 @@ export class UsuarioService {
 
   // Turno (login/cierre)
   login(nombre: string, cedula: string): Observable<Usuario | null> {
-    return this.http.post<Usuario>(`${this.apiUrl}/login`, { nombre, cedula }).pipe(
-      tap(usuario => {
-        if (usuario) {
-          localStorage.setItem('usuarioActual', JSON.stringify(usuario));
-          this.usuarioActualSubject.next(usuario);
-        }
-      })
-    );
+    return this.http
+      .post<Usuario>(`${this.apiUrl}/login`, { nombre, cedula })
+      .pipe(
+        tap((usuario) => {
+          if (usuario) {
+            localStorage.setItem(
+              'usuarioActual',
+              JSON.stringify({
+                usuario: usuario.nombre,
+                fecha: usuario.fechaInicioSesion,
+              })
+            );
+            this.usuarioActualSubject.next(usuario);
+          }
+        })
+      );
   }
 
   // cerrar sesión

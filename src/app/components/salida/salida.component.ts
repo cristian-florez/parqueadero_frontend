@@ -129,6 +129,7 @@ export class SalidaComponent implements OnInit {
 
             // 🔴 Pausar la búsqueda para que no dispare "no encontrado"
             this.desactivarBusqueda = true;
+            this.ticket = null;
             this.formularioSalida.reset();
 
             // Reactivar la búsqueda luego de un pequeño delay

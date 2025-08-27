@@ -58,7 +58,7 @@
             <!-- Tipo de vehículo -->
             <div class="col-6">
               <label for="tipoVehiculo" class="form-label">Tipo de Vehículo</label>
-              <input type="text" class="form-control" id="tipoVehiculo" formControlName="tipo">
+              <input type="text" class="form-control" id="tipoVehiculo" formControlName="tipo" readonly>
               <div *ngIf="formularioSalida.get('vehiculo.tipo')?.touched && formularioSalida.get('vehiculo.tipo')?.hasError('required')" class="text-danger">
                 El tipo de vehículo es obligatorio
               </div>
@@ -67,7 +67,7 @@
             <!-- Placa -->
             <div class="col-6">
               <label for="placa" class="form-label">Placa</label>
-              <input type="text" class="form-control" id="placa" formControlName="placa">
+              <input type="text" class="form-control" id="placa" formControlName="placa" readonly>
               <div *ngIf="formularioSalida.get('vehiculo.placa')?.touched && formularioSalida.get('vehiculo.placa')?.hasError('required')" class="text-danger">
                 La placa es obligatoria
               </div>
@@ -90,7 +90,7 @@
               type="text"
               class="form-control"
               id="usuarioRecibio"
-              formControlName="usuarioRecibio">
+              formControlName="usuarioRecibio" readonly>
 
             <div *ngIf="formularioSalida.get('fechaHoraSalida')?.touched && formularioSalida.get('fechaHoraSalida')?.hasError('required')" class="text-danger">
               La fecha de salida es obligatoria
