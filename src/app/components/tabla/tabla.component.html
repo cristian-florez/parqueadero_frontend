@@ -2,11 +2,56 @@
   <!--Reportes-->
   <div>
 
-  </div>
-  <!--Filtrador-->
-  <div>
+<mat-accordion class="mx-5">
+  <mat-expansion-panel [(expanded)]="filtrosAbiertos">
+    <mat-expansion-panel-header>
+      <mat-panel-title>Filtros de búsqueda</mat-panel-title>
+    </mat-expansion-panel-header>
 
-  </div>
+    <!-- Fila 1 -->
+    <div class="row my-3 mx-1">
+      <div class="col">
+        <input type="text" class="form-control" placeholder="Código" [(ngModel)]="filtros.codigo">
+      </div>
+      <div class="col">
+        <input type="text" class="form-control" placeholder="Placa" [(ngModel)]="filtros.placa">
+      </div>
+      <div class="col">
+        <input type="text" class="form-control" placeholder="Tipo" [(ngModel)]="filtros.tipo">
+      </div>
+      <div class="col">
+        <select class="form-select" [(ngModel)]="filtros.pagado">
+          <option [ngValue]="undefined">Todos</option>
+          <option [ngValue]="true">Pagados</option>
+          <option [ngValue]="false">No Pagados</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Fila 2 -->
+    <div class="row mb-3 mx-1">
+      <div class="col">
+        <input type="text" class="form-control" placeholder="Usuario Recibió" [(ngModel)]="filtros.usuarioRecibio">
+      </div>
+      <div class="col">
+        <input type="text" class="form-control" placeholder="Usuario Entregó" [(ngModel)]="filtros.usuarioEntrego">
+      </div>
+      <div class="col">
+        <input type="datetime-local" class="form-control" [(ngModel)]="filtros.fechaInicio">
+      </div>
+      <div class="col">
+        <input type="datetime-local" class="form-control" [(ngModel)]="filtros.fechaFin">
+      </div>
+    </div>
+
+    <!-- Acciones del panel -->
+    <div class="d-flex gap-2 justify-content-end mb-2 mx-1">
+      <button class="btn btn-outline-secondary" (click)="limpiarFiltros()">Limpiar</button>
+      <button class="btn btn-primary" (click)="aplicarFiltros()">Buscar</button>
+    </div>
+  </mat-expansion-panel>
+</mat-accordion>
+
 </div>
 <div class="container mt-4">
   <h3 class="mb-3 text-center">Registro de Vehículos</h3>

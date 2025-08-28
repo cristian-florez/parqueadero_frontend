@@ -66,6 +66,41 @@ export class TicketService {
     return this.http.delete<Ticket>(`${this.apiUrl}/${id}`);
   }
 
+  getTicketsFiltrados(
+    page: number,
+    size: number,
+    filtros?: {
+      codigo?: string;
+      placa?: string;
+      tipo?: string;
+      usuarioRecibio?: string;
+      usuarioEntrego?: string;
+      fechaInicio?: string;
+      fechaFin?: string;
+      pagado?: boolean;
+    }
+  ): Observable<Page<Ticket>> {
+    let params = new HttpParams().set('page', page).set('size', size);
+
+    if (filtros) {
+      if (filtros.codigo) params = params.set('codigo', filtros.codigo);
+      if (filtros.placa) params = params.set('placa', filtros.placa);
+      if (filtros.tipo) params = params.set('tipo', filtros.tipo);
+      if (filtros.usuarioRecibio)
+        params = params.set('usuarioRecibio', filtros.usuarioRecibio);
+      if (filtros.usuarioEntrego)
+        params = params.set('usuarioEntrego', filtros.usuarioEntrego);
+      if (filtros.fechaInicio)
+        params = params.set('fechaInicio', format(filtros.fechaInicio, "yyyy-MM-dd'T'HH:mm:ss"));
+      if (filtros.fechaFin)
+        params = params.set('fechaFin',format(filtros.fechaFin, "yyyy-MM-dd'T'HH:mm:ss"));
+      if (filtros.pagado !== undefined)
+        params = params.set('pagado', filtros.pagado);
+    }
+
+    return this.http.get<Page<Ticket>>(this.apiUrl, { params });
+  }
+
   //
   obtenerDatosCierre(inicio: Date, final: Date): Observable<TicketCierreTurno> {
     const fechaInicio = format(inicio, "yyyy-MM-dd'T'HH:mm:ss");
