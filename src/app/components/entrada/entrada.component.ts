@@ -19,6 +19,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 })
 export class EntradaComponent implements OnInit {
   formularioEntrada: FormGroup;
+  formularioReimpresion: FormGroup; // 👈 new form group
 
   usuario: Usuario | null = null;
 
@@ -38,6 +39,11 @@ export class EntradaComponent implements OnInit {
         tipo: ['', Validators.required],
       }),
       pago: [null],
+    });
+
+    // 👇 new form group initialization
+    this.formularioReimpresion = this.fb.group({
+      codigo: ['', Validators.required],
     });
   }
 
@@ -105,60 +111,89 @@ export class EntradaComponent implements OnInit {
     }
   }
 
-    private generarEscPos(ticket: Ticket): string {
-      const codigo = ticket.codigoBarrasQR || '0000000000'; // fallback por si no viene vacío
+  private generarEscPos(ticket: Ticket): string {
+    const codigo = ticket.codigoBarrasQR || '0000000000'; // fallback por si no viene vacío
+    return (
+      '\x1B\x40' + // Inicializar
+      '\x1B\x61\x01' + // Centrar
+      'ESTACION DE SERVICIO EL SAMAN\n' +
+      'Calle 5 cra 15 esquina Alcala-Valle\n' +
+      '------------------------\n' +
+      '\x1B\x61\x00' + // Alinear izquierda
+      'Placa: ' +
+      (ticket.vehiculo?.placa || '') +
+      '\n' +
+      'Tipo: ' +
+      (ticket.vehiculo?.tipo || '') +
+      '\n' +
+      'Entrada: ' +
+      new Date(ticket.fechaHoraEntrada).toLocaleString() +
+      '\n' +
+      'Atendido por: ' +
+      (ticket.usuarioRecibio || '') +
+      '\n\n' +
+      '--- TARIFAS ---\n' +
+      'Moto: ' +
+      (this.tarifas['moto'] || 0) +
+      '\n' +
+      'Automovil: ' +
+      (this.tarifas['automovil'] || 0) +
+      '\n' +
+      'Turbo: ' +
+      (this.tarifas['turbo'] || 0) +
+      '\n' +
+      'Camion: ' +
+      (this.tarifas['camion'] || 0) +
+      '\n' +
+      'Nota: Servicio valido por 12 horas.\n' +
+      'Si excede el tiempo, debe pagar de nuevo.\n\n' +
+      '\x1B\x61\x01' + // Centrar código de barras
+      '\x1D\x68\x50' + // Altura
+      '\x1D\x77\x02' + // Ancho
+      '\x1D\x6B\x49' + // CODE128
+      String.fromCharCode(codigo.length) +
+      codigo +
+      '\n' +
+      codigo +
+      '\n\n' +
+      '--- INFORMACION LEGAL ---\n' +
+      '\x1B\x61\x00' + // Alinear izquierda
+      '- El parqueadero responde por afectaciones al vehiculo.\n' +
+      '- No responde por objetos de valor no declarados.\n' +
+      '- Reclamos: hasta 15 dias habiles.\n\n' +
+      '\x1B\x61\x01' + // Centrar pie
+      '¡Gracias por preferirnos!\n\n' +
+      '\x1D\x56\x42\x00' // Corte parcial
+    );
+  }
 
-      return (
-        '\x1B\x40' + // Inicializar
-        '\x1B\x61\x01' + // Centrar
-        'PARQUEADERO EL SAMAN\n' +
-        'Cra 5 # 15-45 Alcala-Valle\n' +
-        '------------------------\n' +
-        '\x1B\x61\x00' + // Alinear izquierda
-        'Placa: ' +
-        (ticket.vehiculo?.placa || '') +
-        '\n' +
-        'Tipo: ' +
-        (ticket.vehiculo?.tipo || '') +
-        '\n' +
-        'Entrada: ' +
-        new Date(ticket.fechaHoraEntrada).toLocaleString() +
-        '\n' +
-        'Atendido por: ' +
-        (ticket.usuarioRecibio || '') +
-        '\n\n' +
-        '--- TARIFAS ---\n' +
-        'Moto: ' +
-        (this.tarifas['moto'] || 0) +
-        '\n' +
-        'Automovil: ' +
-        (this.tarifas['automovil'] || 0) +
-        '\n' +
-        'Turbo: ' +
-        (this.tarifas['turbo'] || 0) +
-        '\n' +
-        'Camion: ' +
-        (this.tarifas['camion'] || 0) +
-        '\n' +
-        'Nota: Servicio valido por 12 horas.\n' +
-        'Si excede el tiempo, debe pagar de nuevo.\n\n' +
-        '\x1B\x61\x01' + // Centrar código de barras
-        '\x1D\x68\x50' + // Altura
-        '\x1D\x77\x02' + // Ancho
-        '\x1D\x6B\x49' + // CODE128
-        String.fromCharCode(codigo.length) +
-        codigo +
-        '\n' +
-        codigo +
-        '\n\n' +
-        '--- INFORMACION LEGAL ---\n' +
-        '\x1B\x61\x00' + // Alinear izquierda
-        '- El parqueadero responde por afectaciones al vehiculo.\n' +
-        '- No responde por objetos de valor no declarados.\n' +
-        '- Reclamos: hasta 15 dias habiles.\n\n' +
-        '\x1B\x61\x01' + // Centrar pie
-        '¡Gracias por preferirnos!\n\n' +
-        '\x1D\x56\x42\x00' // Corte parcial
-      );
+  reimprimirTicket(): void {
+    if (this.formularioReimpresion.valid) {
+      const codigo = this.formularioReimpresion.get('codigo')?.value;
+      this.ticketService.getTicketByCodigo(codigo).subscribe({
+        next: async (ticket) => {
+          if (ticket) {
+            const texto = this.generarEscPos(ticket);
+            try {
+              await this.qzService.imprimirTexto('ticket', texto);
+              this.mensajeService.success('Ticket reimpreso correctamente.');
+            } catch (err) {
+              this.mensajeService.error('No se pudo reimprimir el ticket.');
+              console.error(err);
+            }
+          } else {
+            this.mensajeService.error('No se encontró ningún ticket con ese código.');
+          }
+          this.formularioReimpresion.reset();
+        },
+        error: (error) => {
+          this.mensajeService.error('No se encontró ningún ticket con ese código.');
+          this.formularioReimpresion.reset();
+        }
+      });
+    } else {
+      this.mensajeService.error('Por favor ingrese un código.');
+      this.formularioReimpresion.markAllAsTouched();
     }
+  }
 }

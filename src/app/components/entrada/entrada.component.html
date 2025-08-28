@@ -47,7 +47,7 @@
       <!-- Placa -->
       <div class="mb-3 col-6">
         <label for="placa" class="form-label">Placa</label>
-        <input type="text" class="form-control" id="placa" placeholder="Ej: ABC-123" formControlName="placa">
+        <input type="text" class="form-control" id="placa" placeholder="Ej: ABC123" formControlName="placa">
         <div *ngIf="formularioEntrada.get('vehiculo.placa')?.touched && formularioEntrada.get('vehiculo.placa')?.hasError('required')" class="text-danger">
           La placa es obligatoria
         </div>
@@ -60,6 +60,26 @@
 
       <!-- Botón -->
       <button type="submit" class="btn btn-primary w-100 mt-4">Registrar Ticket</button>
+    </form>
+
+    <!-- Línea divisoria -->
+    <hr class="my-5">
+
+    <!-- Formulario de Reimpresión -->
+    <h3 class="mb-3 text-center">Reimprimir Ticket</h3>
+    <form [formGroup]="formularioReimpresion" (ngSubmit)="reimprimirTicket()">
+
+      <!-- Código -->
+      <div class="mb-3">
+        <label for="codigo" class="form-label">Código de Ticket</label>
+        <input type="text" class="form-control" id="codigo" placeholder="Ingrese el código del ticket" formControlName="codigo">
+        <div *ngIf="formularioReimpresion.get('codigo')?.touched && formularioReimpresion.get('codigo')?.hasError('required')" class="text-danger">
+          El código es obligatorio
+        </div>
+      </div>
+
+      <!-- Botón -->
+      <button type="submit" class="btn btn-info w-100 mt-4">Reimprimir Ticket</button>
     </form>
     </div>
   </div>

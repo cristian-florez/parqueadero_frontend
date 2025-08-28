@@ -107,7 +107,7 @@ export class HeaderComponent implements OnInit {
     out += INIT;
     out += ALIGN_CENTER;
     out += 'ESTACION DE SERVICIO EL SAMAN\n';
-    out += 'Cra 5 # 15-45 Alcala-Valle\n\n';
+    out += 'Calle 5 cra 15 esquina Alcala-Valle\n\n';
     out += 'CIERRE DE TURNO\n';
     out += SEP;
 

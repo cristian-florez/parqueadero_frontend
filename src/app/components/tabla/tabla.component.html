@@ -78,7 +78,7 @@
           <td class="border-end">{{ ticket.fechaHoraEntrada | date: 'dd/MM/yyyy HH:mm' }}</td>
           <td class="border-end">{{ ticket.fechaHoraSalida | date: 'dd/MM/yyyy HH:mm' }}</td>
           <td class="border-end">
-            <span class="badge" [ngClass]="{ 'bg-danger': ticket.pagado === false, 'bg-success': ticket.pagado === true }">{{ ticket.pagado }}</span>
+            <span class="badge" [ngClass]="{ 'bg-danger': ticket.pagado === false, 'bg-success': ticket.pagado === true }">{{ ticket.pagado ? 'pago' : 'Debe' }}</span>
           </td>
           <td class="border-end">{{ ticket.usuarioRecibio }}</td>
           <td class="border-end">{{ ticket.usuarioEntrego }}</td>
