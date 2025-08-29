@@ -40,6 +40,14 @@ export const routes: Routes = [
       ),
     canActivate: [AuthGuard],
   },
+  {
+    path: 'turnos',
+    loadComponent: () =>
+      import('./components/turnos/turnos.component').then(
+        (m) => m.TurnosComponent
+      ),
+    canActivate: [AuthGuard],
+  },
 
   // 3. Redirección raíz -> tabla (protegida)
   { path: '', redirectTo: 'tabla', pathMatch: 'full' },

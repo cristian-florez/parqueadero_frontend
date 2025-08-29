@@ -7,6 +7,7 @@ import { MensajeService } from '../../../services/mensaje.service';
 import { QzService } from '../../../services/qz.service';
 import { CommonModule } from '@angular/common';
 import { TicketCierreTurno } from '../../../models/cierreTurno';
+import { CierreTurnoService } from '../../../services/cierre-turno.service'; // Importar el nuevo servicio
 
 @Component({
   selector: 'app-header',
@@ -23,7 +24,8 @@ export class HeaderComponent implements OnInit {
     private router: Router,
     private ticketService: TicketService,
     private mensajeService: MensajeService,
-    private qzService: QzService
+    private qzService: QzService,
+    private cierreTurnoService: CierreTurnoService // Inyectar el servicio
   ) {}
 
   ngOnInit(): void {
@@ -34,34 +36,40 @@ export class HeaderComponent implements OnInit {
 
 
   async logout(): Promise<void> {
-    // Recuperar el objeto desde el localStorage
     const datosGuardados = localStorage.getItem('usuarioActual');
 
     if (datosGuardados) {
       const objeto = JSON.parse(datosGuardados);
-
-      // Si quieres manejarlo como Date en TypeScript
       const fechaInicial: Date = new Date(objeto.fecha);
       const fechaFinal: Date = new Date();
 
-      this.ticketService.obtenerDatosCierre(fechaInicial, fechaFinal).subscribe({
-        next: async (cierreTurno: TicketCierreTurno) => {
-          const texto = this.generarTicketCierre(cierreTurno, objeto.usuario, fechaInicial, fechaFinal);
+      // Llamada única que guarda el cierre y devuelve el DTO para imprimir
+      this.cierreTurnoService.crearCierre(fechaInicial, fechaFinal).subscribe({
+        next: async (cierreTurnoDto) => {
+          this.mensajeService.success('Cierre de turno guardado correctamente.');
 
+          // Generar el texto para el ticket con el DTO recibido
+          const texto = this.generarTicketCierre(cierreTurnoDto, objeto.usuario, fechaInicial, fechaFinal);
+
+          // Imprimir
           try {
             await this.qzService.imprimirTexto('ticket', texto);
           } catch (err) {
-            this.mensajeService.error('No se pudo imprimir el ticket');
+            this.mensajeService.error('No se pudo imprimir el ticket de cierre.');
             console.error(err);
           }
-            this.usuarioService.logout();
-            this.router.navigate(['/login']);
-        },
-        error: (err) => {
-          console.error('Error al obtener cierre de turno', err);
+
+          // Finalizar sesión
           this.usuarioService.logout();
           this.router.navigate(['/login']);
         },
+        error: (err) => {
+          console.error('Error al crear el cierre de turno', err);
+          this.mensajeService.error('Ocurrió un error al generar el cierre de turno.');
+          // Aún si todo falla, permitir al usuario cerrar sesión
+          this.usuarioService.logout();
+          this.router.navigate(['/login']);
+        }
       });
     }
   }
