@@ -37,7 +37,8 @@
               type="text"
               class="form-control"
               id="codigoBarrasQR"
-              formControlName="codigoBarrasQR">
+              formControlName="codigoBarrasQR"
+              (keydown.enter)="buscarTicketManual()">
 
             <!-- Botón manual de búsqueda -->
             <button

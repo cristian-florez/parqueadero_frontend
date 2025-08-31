@@ -9,6 +9,7 @@ import { Ticket } from '../../models/ticket';
 import { Usuario } from '../../models/usuario';
 import { MensajeService } from '../../services/mensaje.service';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { format } from 'date-fns';
 
 
 @Component({
@@ -68,8 +69,9 @@ export class EntradaComponent implements OnInit {
 
   onSubmit(): void {
     if (this.formularioEntrada.valid) {
-      const nuevoTicket: Ticket = this.formularioEntrada.value;
+      const nuevoTicket: any = this.formularioEntrada.value;
       nuevoTicket.usuarioRecibio = this.usuario?.nombre || '';
+      nuevoTicket.fechaHoraEntrada = format(new Date(), "yyyy-MM-dd'T'HH:mm:ss");
 
       this.ticketService.createTicket(nuevoTicket).subscribe({
         next: async (respuesta) => {
@@ -118,6 +120,7 @@ export class EntradaComponent implements OnInit {
       '\x1B\x61\x01' + // Centrar
       'ESTACION DE SERVICIO EL SAMAN\n' +
       'Calle 5 cra 15 esquina Alcala-Valle\n' +
+      'cel 3217023382\n' +
       '------------------------\n' +
       '\x1B\x61\x00' + // Alinear izquierda
       'Placa: ' +
@@ -144,23 +147,26 @@ export class EntradaComponent implements OnInit {
       '\n' +
       'Camion: ' +
       (this.tarifas['camion'] || 0) +
-      '\n' +
+      '\n\n' +
       'Nota: Servicio valido por 12 horas.\n' +
-      'Si excede el tiempo, debe pagar de nuevo.\n\n' +
+      'Si excede el tiempo, aumentara su tarifa.\n\n' +
       '\x1B\x61\x01' + // Centrar código de barras
-      '\x1D\x68\x50' + // Altura
-      '\x1D\x77\x02' + // Ancho
+      '\x1D\x68\x60' + // Altura un poco más grande (96 en decimal)
+      '\x1D\x77\x03' + // Ancho un poco más grande
       '\x1D\x6B\x49' + // CODE128
       String.fromCharCode(codigo.length) +
       codigo +
       '\n' +
       codigo +
       '\n\n' +
-      '--- INFORMACION LEGAL ---\n' +
+      '--- INFORMACION ---\n' +
       '\x1B\x61\x00' + // Alinear izquierda
-      '- El parqueadero responde por afectaciones al vehiculo.\n' +
-      '- No responde por objetos de valor no declarados.\n' +
-      '- Reclamos: hasta 15 dias habiles.\n\n' +
+      '- Por favor asegurese de cerrar bien sus\n' +
+      'ventanas y puertas con llave.\n\n' +
+      '- No nos hacemos responsables por danos, robos, y/o perdidas al vehiculo y/o sus pertenencias\n' +
+      'que fueran causadas por terceras personas.\n\n' +
+      '- Antes de retirar su vehiculo, obligatoriamente debe mostrar este ticket, en caso de perdida\n' +
+      'presentar el documento de propiedad o que acredite la misma.\n\n' +
       '\x1B\x61\x01' + // Centrar pie
       '¡Gracias por preferirnos!\n\n' +
       '\x1D\x56\x42\x00' // Corte parcial

@@ -15,6 +15,7 @@ import { UsuarioService } from '../../services/usuario.service';
 import { PagoService } from '../../services/pago.service';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { format } from 'date-fns';
 
 @Component({
   selector: 'app-salida',
@@ -115,8 +116,9 @@ export class SalidaComponent implements OnInit {
 
   onSubmit(): void {
     if (this.formularioSalida.valid) {
-      const nuevoTicket: Ticket = this.formularioSalida.value;
+      const nuevoTicket: any = this.formularioSalida.value;
       nuevoTicket.usuarioEntrego = this.usuario?.nombre || '';
+      nuevoTicket.fechaHoraSalida = format(new Date(), "yyyy-MM-dd'T'HH:mm:ss");
 
       this.ticketService
         .updateTicket(nuevoTicket.codigoBarrasQR, nuevoTicket)

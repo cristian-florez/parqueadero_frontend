@@ -34,11 +34,15 @@ export class LoginComponent {
 
       this.usuarioService
         .login(credenciales.nombre, credenciales.cedula)
-        .subscribe((isLoggedIn) => {
-          if (isLoggedIn) {
-            this.router.navigate(['/tabla']);
-          } else {
-            this.error= 'Credenciales incorrectas. Por favor, inténtelo de nuevo.';
+        .subscribe({
+          next: (isLoggedIn) => {
+            if (isLoggedIn) {
+              this.router.navigate(['/tabla']);
+            }
+          },
+          error: (err) => {
+            console.error('Error de inicio de sesión:', err);
+            this.error = 'Credenciales incorrectas. Por favor, inténtelo de nuevo.';
           }
         });
     }

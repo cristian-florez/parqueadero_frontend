@@ -6,6 +6,7 @@ import { environment } from '../../environments/environment';
 import { Usuario } from '../models/usuario';
 import { TicketCierreTurno } from '../models/cierreTurno';
 import { tap } from 'rxjs/operators';
+import { format } from 'date-fns';
 
 
 @Injectable({
@@ -21,7 +22,9 @@ export class UsuarioService {
     // Restaurar sesión si hay usuario guardado
     const savedUser = localStorage.getItem('usuarioActual');
     if (savedUser) {
-      this.usuarioActualSubject.next(JSON.parse(savedUser));
+      const usuario: Usuario = JSON.parse(savedUser);
+      usuario.fechaInicioSesion = new Date(usuario.fechaInicioSesion);
+      this.usuarioActualSubject.next(usuario);
     }
   }
 
@@ -53,13 +56,8 @@ export class UsuarioService {
       .pipe(
         tap((usuario) => {
           if (usuario) {
-            localStorage.setItem(
-              'usuarioActual',
-              JSON.stringify({
-                usuario: usuario.nombre,
-                fecha: usuario.fechaInicioSesion,
-              })
-            );
+            usuario.fechaInicioSesion = new Date(usuario.fechaInicioSesion);
+            localStorage.setItem('usuarioActual', JSON.stringify(usuario));
             this.usuarioActualSubject.next(usuario);
           }
         })

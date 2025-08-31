@@ -32,7 +32,7 @@ export class CierreTurnoService {
       throw new Error('No se encontró información del usuario en el localStorage.');
     }
     const sesion = JSON.parse(usuarioData);
-    const nombreUsuario = sesion.usuario;
+    const nombreUsuario = sesion.nombre;
 
     let params = new HttpParams()
       .set('inicio', fechaInicio)
