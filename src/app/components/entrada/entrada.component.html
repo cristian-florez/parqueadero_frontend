@@ -65,6 +65,79 @@
     <!-- Línea divisoria -->
     <hr class="my-5">
 
+    <!-- Formulario de Entrada por Mensualidad -->
+    <h3 class="mb-3 text-center">Entrada por Mensualidad</h3>
+    <form [formGroup]="formularioMensualidad" (ngSubmit)="onSubmitMensualidad()">
+
+      <!-- Vehículo -->
+      <div formGroupName="vehiculo" class="row">
+
+        <!-- Tipo de vehículo -->
+        <div class="mb-3 col-6">
+          <label for="tipoVehiculoMensualidad" class="form-label">Tipo de Vehículo</label>
+          <select class="form-select" id="tipoVehiculoMensualidad" formControlName="tipo">
+            <option value="">Seleccione...</option>
+            <option value="automovil">automovil</option>
+            <option value="moto">Moto</option>
+            <option value="turbo">turbo</option>
+            <option value="camion">camion</option>
+          </select>
+          <div *ngIf="formularioMensualidad.get('vehiculo.tipo')?.touched && formularioMensualidad.get('vehiculo.tipo')?.hasError('required')" class="text-danger">
+            El tipo de vehículo es obligatorio
+          </div>
+        </div>
+
+        <!-- Placa -->
+        <div class="mb-3 col-6">
+          <label for="placaMensualidad" class="form-label">Placa</label>
+          <input type="text" class="form-control" id="placaMensualidad" placeholder="Ej: ABC123" formControlName="placa">
+          <div *ngIf="formularioMensualidad.get('vehiculo.placa')?.touched && formularioMensualidad.get('vehiculo.placa')?.hasError('required')" class="text-danger">
+            La placa es obligatoria
+          </div>
+        </div>
+
+      <!-- Fecha de Entrada -->
+      <div class="mb-3 col-4">
+        <label for="fechaEntradaMensualidad" class="form-label">Fecha de Entrada</label>
+        <input type="datetime-local" class="form-control" id="fechaEntradaMensualidad" formControlName="fechaHoraEntrada">
+        <div *ngIf="formularioMensualidad.get('fechaHoraEntrada')?.touched && formularioMensualidad.get('fechaHoraEntrada')?.hasError('required')" class="text-danger">
+          La fecha de entrada es obligatoria
+        </div>
+      </div>
+
+      <!-- Días -->
+      <div class="mb-3 col-4">
+        <label for="diasMensualidad" class="form-label">Días de Mensualidad</label>
+        <input type="number" class="form-control" id="diasMensualidad" formControlName="dias">
+        <div *ngIf="formularioMensualidad.get('dias')?.touched && formularioMensualidad.get('dias')?.hasError('required')" class="text-danger">
+          Los días son obligatorios
+        </div>
+        <div *ngIf="formularioMensualidad.get('dias')?.touched && formularioMensualidad.get('dias')?.hasError('min')" class="text-danger">
+          Los días deben ser al menos 1
+        </div>
+      </div>
+
+      <!-- Precio -->
+      <div class="mb-3 col-4">
+        <label for="precioMensualidad" class="form-label">Precio</label>
+        <input type="number" class="form-control" id="precioMensualidad" formControlName="precio">
+        <div *ngIf="formularioMensualidad.get('precio')?.touched && formularioMensualidad.get('precio')?.hasError('required')" class="text-danger">
+          El precio es obligatorio
+        </div>
+        <div *ngIf="formularioMensualidad.get('precio')?.touched && formularioMensualidad.get('precio')?.hasError('min')" class="text-danger">
+          El precio debe ser al menos 0
+        </div>
+      </div>
+    </div>
+
+
+      <!-- Botón -->
+      <button type="submit" class="btn btn-success w-100 mt-4">Registrar Mensualidad</button>
+    </form>
+
+    <!-- Línea divisoria -->
+    <hr class="my-5">
+
     <!-- Formulario de Reimpresión -->
     <h3 class="mb-3 text-center">Reimprimir Ticket</h3>
     <form [formGroup]="formularioReimpresion" (ngSubmit)="reimprimirTicket()">

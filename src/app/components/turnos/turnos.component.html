@@ -49,7 +49,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let cierre of cierresFiltrados">
+            <tr *ngFor="let cierre of cierres">
               <td>{{ cierre.nombreUsuario }}</td>
               <td>{{ cierre.fechaInicioTurno | date:'dd/MM/yy HH:mm' }}</td>
               <td>{{ cierre.fechaFinTurno | date:'dd/MM/yy HH:mm' }}</td>
@@ -63,12 +63,23 @@
                 </button>
               </td>
             </tr>
-            <tr *ngIf="cierresFiltrados.length === 0">
+            <tr *ngIf="cierres.length === 0">
               <td colspan="8" class="text-center fst-italic py-3">No se encontraron registros con los filtros aplicados.</td>
             </tr>
           </tbody>
         </table>
       </div>
+
+      <mat-paginator
+        [length]="totalElementos"
+        [pageSize]="size"
+        [pageIndex]="index"
+        [pageSizeOptions]="[5, 10, 20]"
+        (page)="cambiarPagina($event)"
+        aria-label="Select page"
+      >
+      </mat-paginator>
+
     </div>
   </div>
 </div>

@@ -7,6 +7,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { CierreTurno, TicketCierreTurno } from '../models/cierreTurno';
 import { format } from 'date-fns';
+import { Page } from '../core/types/page';
 
 @Injectable({
   providedIn: 'root'
@@ -52,6 +53,27 @@ export class CierreTurnoService {
    */
   obtenerTodosLosCierres(): Observable<CierreTurno[]> {
     return this.http.get<CierreTurno[]>(this.apiUrl);
+  }
+
+  /**
+   * Obtiene cierres de turno paginados.
+   * @param page Número de página (0-indexed).
+   * @param size Tamaño de la página.
+   * @returns Un Observable con un objeto Page de CierreTurno.
+   */
+  obtenerCierresPaginados(page: number, size: number, inicio?: string, fin?: string): Observable<Page<CierreTurno>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+
+    if (inicio) {
+      params = params.set('inicio', inicio);
+    }
+    if (fin) {
+      params = params.set('fin', fin);
+    }
+
+    return this.http.get<Page<CierreTurno>>(this.apiUrl, { params });
   }
 
   /**

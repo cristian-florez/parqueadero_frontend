@@ -20,7 +20,8 @@ import { format } from 'date-fns';
 })
 export class EntradaComponent implements OnInit {
   formularioEntrada: FormGroup;
-  formularioReimpresion: FormGroup; // 👈 new form group
+  formularioReimpresion: FormGroup;
+  formularioMensualidad: FormGroup; // New form group for monthly entries
 
   usuario: Usuario | null = null;
 
@@ -42,9 +43,19 @@ export class EntradaComponent implements OnInit {
       pago: [null],
     });
 
-    // 👇 new form group initialization
     this.formularioReimpresion = this.fb.group({
       codigo: ['', Validators.required],
+    });
+
+    // Initialize new form group for monthly entries
+    this.formularioMensualidad = this.fb.group({
+      vehiculo: this.fb.group({
+        placa: ['', Validators.required],
+        tipo: ['', Validators.required],
+      }),
+      fechaHoraEntrada: ['', Validators.required],
+      dias: [1, [Validators.required, Validators.min(1)]],
+      precio: [0, [Validators.required, Validators.min(0)]],
     });
   }
 
@@ -58,11 +69,31 @@ export class EntradaComponent implements OnInit {
       data.forEach((t) => (this.tarifas[t.tipoVehiculo] = t.precioDia));
     });
 
-    // 🔹 Suscripción para convertir la placa a mayúsculas automáticamente
-    const placaControl = this.formularioEntrada.get('vehiculo.placa');
-    placaControl?.valueChanges.subscribe((valor: string) => {
+    // 🔹 Suscripción para convertir la placa a mayúsculas automáticamente para formularioEntrada
+    const placaControlEntrada = this.formularioEntrada.get('vehiculo.placa');
+    placaControlEntrada?.valueChanges.subscribe((valor: string) => {
       if (valor && valor !== valor.toUpperCase()) {
-        placaControl.setValue(valor.toUpperCase(), { emitEvent: false });
+        placaControlEntrada.setValue(valor.toUpperCase(), { emitEvent: false });
+      }
+    });
+
+    // 🔹 Suscripción para convertir la placa a mayúsculas automáticamente para formularioMensualidad
+    const placaControlMensualidad = this.formularioMensualidad.get('vehiculo.placa');
+    placaControlMensualidad?.valueChanges.subscribe((valor: string) => {
+      if (valor && valor !== valor.toUpperCase()) {
+        placaControlMensualidad.setValue(valor.toUpperCase(), { emitEvent: false });
+      }
+    });
+
+    // 🔹 Suscripción para calcular fechaHoraSalida en formularioMensualidad
+    this.formularioMensualidad.valueChanges.subscribe(values => {
+      const fechaEntrada = values.fechaHoraEntrada;
+      const dias = values.dias;
+      if (fechaEntrada && dias) {
+        const entradaDate = new Date(fechaEntrada);
+        const salidaDate = new Date(entradaDate);
+        salidaDate.setDate(entradaDate.getDate() + dias);
+        // No need to store fechaHoraSalida in the form, calculate it on submit
       }
     });
   }
@@ -105,6 +136,52 @@ export class EntradaComponent implements OnInit {
     }
   }
 
+  // New method for monthly entry submission
+  onSubmitMensualidad(): void {
+    if (this.formularioMensualidad.valid) {
+      const nuevoTicketMensualidad: Ticket = {
+        codigoBarrasQR: '', // Backend will generate this
+        fechaHoraEntrada: new Date(this.formularioMensualidad.get('fechaHoraEntrada')?.value),
+        fechaHoraSalida: new Date(new Date(this.formularioMensualidad.get('fechaHoraEntrada')?.value).setDate(new Date(this.formularioMensualidad.get('fechaHoraEntrada')?.value).getDate() + this.formularioMensualidad.get('dias')?.value)),
+        pagado: true,
+        usuarioRecibio: this.usuario?.nombre || '',
+        usuarioEntrego: this.usuario?.nombre || '',
+        vehiculo: {
+          placa: this.formularioMensualidad.get('vehiculo.placa')?.value + '-MENSUALIDAD',
+          tipo: this.formularioMensualidad.get('vehiculo.tipo')?.value,
+        },
+        pago: {
+          total: this.formularioMensualidad.get('precio')?.value,
+          fechaHora: new Date(),
+        },
+      };
+
+      this.ticketService.createTicket(nuevoTicketMensualidad).subscribe({
+        next: async (respuesta) => {
+          this.mensajeService.success('El ticket de mensualidad se registró correctamente ✅');
+          // Optionally print a ticket for monthly entry, similar to regular entry
+          const texto = this.generarEscPos(respuesta);
+          try {
+            await this.qzService.imprimirTexto('ticket', texto);
+          } catch (err) {
+            this.mensajeService.error('No se pudo imprimir el ticket de mensualidad');
+            console.error(err);
+          }
+          this.formularioMensualidad.reset();
+        },
+        error: (error) => {
+          this.mensajeService.error('Ocurrió un error al registrar el ticket de mensualidad');
+          console.error(error);
+        },
+      });
+    } else {
+      this.mensajeService.error(
+        'Por favor complete todos los campos obligatorios para la mensualidad'
+      );
+      this.formularioMensualidad.markAllAsTouched();
+    }
+  }
+
   // Método que recibe un string y lo retorna en mayúsculas
   convertirAMayusculas(campo: string) {
     const control = this.formularioEntrada.get(campo);
@@ -120,8 +197,8 @@ export class EntradaComponent implements OnInit {
       '\x1B\x61\x01' + // Centrar
       'ESTACION DE SERVICIO EL SAMAN\n' +
       'Calle 5 cra 15 esquina Alcala-Valle\n' +
-      'cel 3217023382\n' +
-      '------------------------\n' +
+      'cel 3217023382\n' + 
+      '------------------------\n' + 
       '\x1B\x61\x00' + // Alinear izquierda
       'Placa: ' +
       (ticket.vehiculo?.placa || '') +

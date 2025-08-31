@@ -1,16 +1,22 @@
-
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule, DatePipe } from '@angular/common';
 import { CierreTurnoService } from '../../services/cierre-turno.service';
 import { CierreTurno } from '../../models/cierreTurno';
 import { MensajeService } from '../../services/mensaje.service';
 import { QzService } from '../../services/qz.service';
+import { Page } from '../../core/types/page';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-turnos',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    FormsModule,
+    MatPaginatorModule,
+  ],
   templateUrl: './turnos.component.html',
   styleUrls: ['./turnos.component.css'],
   providers: [DatePipe] // Proveer DatePipe
@@ -18,14 +24,17 @@ import { QzService } from '../../services/qz.service';
 export class TurnosComponent implements OnInit {
   filtroForm: FormGroup;
   cierres: CierreTurno[] = [];
-  cierresFiltrados: CierreTurno[] = [];
+
+  public totalElementos = 0;
+  public size = 10;
+  public index = 0;
 
   constructor(
     private fb: FormBuilder,
     private cierreTurnoService: CierreTurnoService,
     private mensajeService: MensajeService,
-    private qzService: QzService, // Inyectar QzService
-    private datePipe: DatePipe // Inyectar DatePipe
+    private qzService: QzService,
+    private datePipe: DatePipe
   ) {
     this.filtroForm = this.fb.group({
       inicio: [''],
@@ -38,37 +47,36 @@ export class TurnosComponent implements OnInit {
   }
 
   cargarCierres(): void {
-    this.cierreTurnoService.obtenerTodosLosCierres().subscribe({
-      next: (data) => {
-        this.cierres = data;
-        this.cierresFiltrados = data;
+    const { inicio, fin } = this.filtroForm.value;
+    this.cierreTurnoService.obtenerCierresPaginados(this.index, this.size, inicio, fin).subscribe({
+      next: (page: Page<CierreTurno>) => {
+        this.cierres = page.content;
+        this.totalElementos = page.totalElements;
       },
-      error: () => {
+      error: (err) => {
+        console.error('Error al cargar los cierres de turno:', err);
         this.mensajeService.error('Error al cargar los cierres de turno.');
+        this.cierres = [];
+        this.totalElementos = 0;
       }
     });
   }
 
   aplicarFiltros(): void {
-    const { inicio, fin } = this.filtroForm.value;
-    let resultado = this.cierres;
-
-    if (inicio) {
-      const fechaInicio = new Date(inicio);
-      resultado = resultado.filter(c => new Date(c.fechaInicioTurno) >= fechaInicio);
-    }
-
-    if (fin) {
-      const fechaFin = new Date(fin);
-      resultado = resultado.filter(c => new Date(c.fechaFinTurno) <= fechaFin);
-    }
-
-    this.cierresFiltrados = resultado;
+    this.index = 0; // Reset to first page when filters are applied
+    this.cargarCierres();
   }
 
   limpiarFiltros(): void {
     this.filtroForm.reset({ inicio: '', fin: '' });
-    this.cierresFiltrados = this.cierres;
+    this.index = 0; // Reset to first page
+    this.cargarCierres();
+  }
+
+  cambiarPagina(event: PageEvent): void {
+    this.index = event.pageIndex;
+    this.size = event.pageSize;
+    this.cargarCierres();
   }
 
   async imprimirCierre(cierre: CierreTurno): Promise<void> {
@@ -89,8 +97,7 @@ export class TurnosComponent implements OnInit {
     const CUT_PARTIAL = '\x1D\x56\x42\x00';
     const SEP = '------------------------\n';
 
-    const formatCOP = (value: number) => '$'
- + Math.round(value).toLocaleString('es-CO');
+    const formatCOP = (value: number) => '$' + Math.round(value).toLocaleString('es-CO');
     const formatDate = (date: string) => this.datePipe.transform(date, 'dd/MM/yy, h:mm a') || '';
 
     let out = '';
