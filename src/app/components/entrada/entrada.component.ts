@@ -21,7 +21,7 @@ import { format } from 'date-fns';
 export class EntradaComponent implements OnInit {
   formularioEntrada: FormGroup;
   formularioReimpresion: FormGroup;
-  formularioMensualidad: FormGroup; // New form group for monthly entries
+  formularioMensualidad: FormGroup;
 
   usuario: Usuario | null = null;
 
@@ -47,7 +47,6 @@ export class EntradaComponent implements OnInit {
       codigo: ['', Validators.required],
     });
 
-    // Initialize new form group for monthly entries
     this.formularioMensualidad = this.fb.group({
       vehiculo: this.fb.group({
         placa: ['', Validators.required],
@@ -85,17 +84,7 @@ export class EntradaComponent implements OnInit {
       }
     });
 
-    // 🔹 Suscripción para calcular fechaHoraSalida en formularioMensualidad
-    this.formularioMensualidad.valueChanges.subscribe(values => {
-      const fechaEntrada = values.fechaHoraEntrada;
-      const dias = values.dias;
-      if (fechaEntrada && dias) {
-        const entradaDate = new Date(fechaEntrada);
-        const salidaDate = new Date(entradaDate);
-        salidaDate.setDate(entradaDate.getDate() + dias);
-        // No need to store fechaHoraSalida in the form, calculate it on submit
-      }
-    });
+
   }
 
   onSubmit(): void {
@@ -136,24 +125,18 @@ export class EntradaComponent implements OnInit {
     }
   }
 
-  // New method for monthly entry submission
   onSubmitMensualidad(): void {
     if (this.formularioMensualidad.valid) {
-      const nuevoTicketMensualidad: Ticket = {
-        codigoBarrasQR: '', // Backend will generate this
-        fechaHoraEntrada: new Date(this.formularioMensualidad.get('fechaHoraEntrada')?.value),
-        fechaHoraSalida: new Date(new Date(this.formularioMensualidad.get('fechaHoraEntrada')?.value).setDate(new Date(this.formularioMensualidad.get('fechaHoraEntrada')?.value).getDate() + this.formularioMensualidad.get('dias')?.value)),
-        pagado: true,
+      const formValue = this.formularioMensualidad.value;
+
+      const nuevoTicketMensualidad: any = {
+        placa: formValue.vehiculo.placa + '-MENSUALIDAD',
+        tipoVehiculo: formValue.vehiculo.tipo,
         usuarioRecibio: this.usuario?.nombre || '',
-        usuarioEntrego: this.usuario?.nombre || '',
-        vehiculo: {
-          placa: this.formularioMensualidad.get('vehiculo.placa')?.value + '-MENSUALIDAD',
-          tipo: this.formularioMensualidad.get('vehiculo.tipo')?.value,
-        },
-        pago: {
-          total: this.formularioMensualidad.get('precio')?.value,
-          fechaHora: new Date(),
-        },
+        fechaHoraEntrada: new Date(formValue.fechaHoraEntrada).toISOString(),
+        pagado: true,
+        dias: formValue.dias,
+        total: formValue.precio
       };
 
       this.ticketService.createTicket(nuevoTicketMensualidad).subscribe({
@@ -197,8 +180,8 @@ export class EntradaComponent implements OnInit {
       '\x1B\x61\x01' + // Centrar
       'ESTACION DE SERVICIO EL SAMAN\n' +
       'Calle 5 cra 15 esquina Alcala-Valle\n' +
-      'cel 3217023382\n' + 
-      '------------------------\n' + 
+      'cel 3217023382\n' +
+      '------------------------\n' +
       '\x1B\x61\x00' + // Alinear izquierda
       'Placa: ' +
       (ticket.vehiculo?.placa || '') +
@@ -207,7 +190,7 @@ export class EntradaComponent implements OnInit {
       (ticket.vehiculo?.tipo || '') +
       '\n' +
       'Entrada: ' +
-      new Date(ticket.fechaHoraEntrada).toLocaleString() +
+      ticket.fechaHoraEntrada +
       '\n' +
       'Atendido por: ' +
       (ticket.usuarioRecibio || '') +

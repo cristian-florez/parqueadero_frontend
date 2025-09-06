@@ -3,10 +3,9 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { Usuario } from '../models/usuario';
-import { TicketCierreTurno } from '../models/cierreTurno';
 import { tap } from 'rxjs/operators';
 import { format } from 'date-fns';
+import { Usuario, UsuarioLogin } from '../models/usuario';
 
 
 @Injectable({
@@ -23,18 +22,12 @@ export class UsuarioService {
     const savedUser = localStorage.getItem('usuarioActual');
     if (savedUser) {
       const usuario: Usuario = JSON.parse(savedUser);
-      usuario.fechaInicioSesion = new Date(usuario.fechaInicioSesion);
       this.usuarioActualSubject.next(usuario);
     }
   }
 
-  // CRUD
   getUsuarios(): Observable<Usuario[]> {
     return this.http.get<Usuario[]>(this.apiUrl);
-  }
-
-  getUsuarioById(id: number): Observable<Usuario> {
-    return this.http.get<Usuario>(`${this.apiUrl}/${id}`);
   }
 
   createUsuario(usuario: Usuario): Observable<Usuario> {
@@ -45,18 +38,13 @@ export class UsuarioService {
     return this.http.put<Usuario>(`${this.apiUrl}/${id}`, usuario);
   }
 
-  deleteUsuario(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
-  }
-
   // Turno (login/cierre)
-  login(nombre: string, cedula: string): Observable<Usuario | null> {
+  login(usuario: UsuarioLogin): Observable<Usuario | null> {
     return this.http
-      .post<Usuario>(`${this.apiUrl}/login`, { nombre, cedula })
+      .post<Usuario>(`${this.apiUrl}/login`, usuario)
       .pipe(
         tap((usuario) => {
           if (usuario) {
-            usuario.fechaInicioSesion = new Date(usuario.fechaInicioSesion);
             localStorage.setItem('usuarioActual', JSON.stringify(usuario));
             this.usuarioActualSubject.next(usuario);
           }

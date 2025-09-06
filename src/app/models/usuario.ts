@@ -1,10 +1,11 @@
-// ==========================
-// archivo: usuario.ts
-// ==========================
-
 export interface Usuario {
-  id?: number; // opcional porque al crear un usuario nuevo el ID lo genera el backend
-  nombre: string; // nombre completo del usuario
-  cedula: string; // cédula del usuario
-  fechaInicioSesion:Date;
+  id: number;
+  nombre: string;
+  cedula: string;
+  fechaInicioSesion: string;
+}
+
+export interface UsuarioLogin {
+  nombre: string;
+  cedula: string;
 }

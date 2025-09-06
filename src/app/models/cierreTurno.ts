@@ -1,32 +1,36 @@
-import { Vehiculo } from "./vehiculo";
+import { TotalVehiculosDTO } from "./vehiculos";
+import { Vehiculo } from "./vehiculos";
 
-export type TipoVehiculo = [string, number];
-
-// Esta es la entidad que se guarda y se obtiene de la API de CierreTurno
-export interface CierreTurno {
-  id: number;
+export interface CierreReimpresionResponse {
   nombreUsuario: string;
-  fechaCreacion: string; // o Date
-  fechaInicioTurno: string; // o Date
-  fechaFinTurno: string; // o Date
+  fechaInicioTurno: string;
+  fechaFinTurno: string;
   totalIngresos: number;
-  totalVehiculosEntraron: number;
-  totalVehiculosSalieron: number;
-  vehiculosRestantes: number;
-  detalleEntrantes: string;
-  detalleSalientes: string;
-  detalleRestantes: string;
+  detallesJson: string;
 }
 
-
-// Este es el DTO que se usa para los cálculos en el frontend
-export interface TicketCierreTurno {
-  totalVehiculosQueEntraron: Vehiculo[];
-  totalVehiculosQueSalieron: Vehiculo[];
+export interface DetalleParqueaderoCierre {
+  listaVehiculosEntrantes: Vehiculo[];
+  listaVehiculosSalientes: Vehiculo[];
   totalAPagar: number;
+  vehiculosMensualidad: Vehiculo[];
   vehiculosEnParqueadero: Vehiculo[];
-  tipoVehiculosEntrantes: TipoVehiculo[];
-  tipoVehiculosSaliente: TipoVehiculo[];
-  tipoVehiculosParqueadero: TipoVehiculo[];
-  tipoVehiculoParqueadero: TipoVehiculo[];
+  listaTiposVehiculosEntrantes: TotalVehiculosDTO[];
+  listaTiposVehiculosSalientes: TotalVehiculosDTO[];
+  listaTiposVehiculosParqueadero: TotalVehiculosDTO[];
 }
+
+export interface TicketCierreResponse {
+  usuario: string;
+  fechaInicio: string;
+  fechaFinal: string;
+  total: number;
+}
+
+export interface TicketCierreTurno {
+  fechaInicio: string;
+  fechaCierre: string;
+  total: number;
+  detallesPorParqueadero: Record<string, DetalleParqueaderoCierre>;
+}
+
