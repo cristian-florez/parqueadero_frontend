@@ -1,32 +1,46 @@
 <div class="container mt-4">
-  <!-- Título y Formulario -->
-  <div class="card shadow-sm mb-4">
-    <div class="card-body">
-      <h3 class="card-title text-center mb-4">Historial de Turnos</h3>
-      
-      <form [formGroup]="filtroForm" (ngSubmit)="aplicarFiltros()">
-        <div class="row g-3 align-items-end">
+  <h3 class="mb-3 text-center">Historial de Turnos</h3>
+
+  <!-- Filtros -->
+  <mat-accordion class="mx-5">
+    <mat-expansion-panel [(expanded)]="filtrosAbiertos">
+      <mat-expansion-panel-header>
+        <mat-panel-title>Filtros de búsqueda</mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <form>
+        <div class="row g-3 align-items-end p-3">
           <!-- Fecha de Inicio -->
-          <div class="col-md-4">
+          <div class="col-md-3">
             <label for="inicio" class="form-label">Desde</label>
-            <input type="datetime-local" id="inicio" class="form-control" formControlName="inicio">
+            <input type="datetime-local" id="inicio" class="form-control" [(ngModel)]="filtros.inicio" name="inicio">
           </div>
 
           <!-- Fecha de Fin -->
-          <div class="col-md-4">
+          <div class="col-md-3">
             <label for="fin" class="form-label">Hasta</label>
-            <input type="datetime-local" id="fin" class="form-control" formControlName="fin">
+            <input type="datetime-local" id="fin" class="form-control" [(ngModel)]="filtros.fin" name="fin">
           </div>
 
-          <!-- Botones -->
-          <div class="col-md-4 d-flex gap-2">
-            <button type="submit" class="btn btn-primary w-100">Filtrar</button>
-            <button type="button" class="btn btn-outline-secondary w-100" (click)="limpiarFiltros()">Limpiar</button>
+          <!-- Usuario -->
+          <div class="col-md-3">
+            <label for="usuario" class="form-label">Usuario</label>
+            <select id="usuario" class="form-select" [(ngModel)]="filtros.usuario" name="usuario">
+              <option [ngValue]="undefined">Todos</option>
+              <option *ngFor="let u of filtrosDTO.usuarios" [ngValue]="u">{{ u }}</option>
+            </select>
           </div>
         </div>
+
+        <!-- Acciones del panel -->
+        <div class="d-flex gap-2 justify-content-end mt-3 p-3">
+          <button type="button" class="btn btn-outline-secondary" (click)="limpiarFiltros()">Limpiar</button>
+          <button type="button" class="btn btn-primary" (click)="aplicarFiltros()">Buscar</button>
+        </div>
       </form>
-    </div>
-  </div>
+
+    </mat-expansion-panel>
+  </mat-accordion>
 
   <!-- Tabla de Cierres -->
   <div class="card shadow-sm">
@@ -42,23 +56,17 @@
               <th>Inicio Turno</th>
               <th>Fin Turno</th>
               <th>Ingresos ($)</th>
-              <th>Vehículos Entraron</th>
-              <th>Vehículos Salieron</th>
-              <th>Vehículos Restantes</th>
               <th class="text-end">Acciones</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let cierre of cierres">
               <td>{{ cierre.nombreUsuario }}</td>
-              <td>{{ cierre.fechaInicioTurno | date:'dd/MM/yy HH:mm' }}</td>
-              <td>{{ cierre.fechaFinTurno | date:'dd/MM/yy HH:mm' }}</td>
-              <td>{{ cierre.totalIngresos | number }}</td>
-              <td>{{ cierre.totalVehiculosEntraron }}</td>
-              <td>{{ cierre.totalVehiculosSalieron }}</td>
-              <td>{{ cierre.vehiculosRestantes }}</td>
+              <td>{{ cierre.fechaInicio| date:'dd/MM/yy HH:mm' }}</td>
+              <td>{{ cierre.fechaCierre| date:'dd/MM/yy HH:mm' }}</td>
+              <td>{{ cierre.total | number }}</td>
               <td class="text-end">
-                <button class="btn btn-sm btn-outline-primary" (click)="imprimirCierre(cierre)" title="Imprimir Cierre">
+                <button class="btn btn-sm btn-outline-primary" (click)="reimprimirCierrePorId(cierre.id)" title="Imprimir Cierre">
                   <i class="fas fa-print"></i>
                 </button>
               </td>

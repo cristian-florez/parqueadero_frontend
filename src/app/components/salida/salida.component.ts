@@ -8,14 +8,14 @@ import {
   Validators,
 } from '@angular/forms';
 import { TicketService } from '../../services/ticket.service';
-import { Ticket } from '../../models/ticket';
 import { Usuario } from '../../models/usuario';
 import { MensajeService } from '../../services/mensaje.service';
 import { UsuarioService } from '../../services/usuario.service';
 import { PagoService } from '../../services/pago.service';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
-import { format } from 'date-fns';
+import { TicketResponse, TicketSalidaRequest } from '../../models/tickets';
+import { of } from 'rxjs';
+import { switchMap, map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-salida',
@@ -25,88 +25,21 @@ import { format } from 'date-fns';
   styleUrl: './salida.component.css',
 })
 export class SalidaComponent implements OnInit {
-  formularioSalida: FormGroup;
-  private desactivarBusqueda = false;
+  formularioBusqueda: FormGroup;
   usuario: Usuario | null = null;
-  ticket: Ticket | null = null;
+  ticketEncontrado: TicketResponse | null = null;
 
   constructor(
     private fb: FormBuilder,
     private ticketService: TicketService,
-    private mensajeService: MensajeService,
+    private pagoService: PagoService,
     private usuarioService: UsuarioService,
-    private pagoService: PagoService
+    private mensajeService: MensajeService
   ) {
-    this.formularioSalida = this.fb.group({
-      codigoBarrasQR: ['', Validators.required],
-      fechaHoraEntrada: ['', Validators.required],
-      usuarioRecibio: ['', Validators.required],
-      vehiculo: this.fb.group({
-        placa: ['', Validators.required],
-        tipo: ['', Validators.required],
-      }),
+    this.formularioBusqueda = this.fb.group({
+      codigo: ['', Validators.required],
     });
-
-    // 🔎 Escuchar cuando cambia el código QR
-    this.formularioSalida
-      .get('codigoBarrasQR')
-      ?.valueChanges.pipe(
-        debounceTime(400), // espera mientras el usuario escribe
-        distinctUntilChanged(), // evita búsquedas repetidas
-        switchMap((codigo: string) => {
-          if (this.desactivarBusqueda || !codigo) {
-            return []; // no hacer nada si está vacío o si pausamos
-          }
-          return this.ticketService.getTicketByCodigo(codigo);
-        })
-      )
-      .subscribe({
-        next: (ticket: Ticket | null) => {
-          if (ticket) {
-            this.ticket = ticket;
-
-            // ✅ Llamar al servicio de pago y asignarlo
-            this.pagoService.obtenerPago(ticket.codigoBarrasQR).subscribe({
-              next: (pago) => {
-                if (this.ticket) {
-                  this.ticket.pago = pago;
-                }
-              },
-              error: () => {
-                this.mensajeService.error('No se pudo calcular el pago ❌');
-              },
-            });
-
-            // ✅ Llenar el formulario con los datos encontrados
-            this.formularioSalida.patchValue({
-              usuarioRecibio: ticket.usuarioRecibio,
-              fechaHoraEntrada: this.ticket.fechaHoraEntrada,
-              vehiculo: {
-                tipo: ticket.vehiculo.tipo,
-                placa: ticket.vehiculo.placa,
-              },
-              // 👀 puedes agregar más campos si tu modelo Ticket tiene más
-            });
-
-            this.mensajeService.success('Ticket encontrado ✅');
-          } else {
-            // ❌ Ticket no encontrado → limpiar campos dependientes
-            this.ticket = null;
-
-            this.formularioSalida.patchValue({
-              usuarioEntrego: '',
-              vehiculo: { placa: '' },
-            });
-
-            this.mensajeService.error('Ticket no encontrado o ya pagado❌');
-          }
-        },
-        error: () => {
-          this.mensajeService.error('Error al buscar el ticket 🚨');
-        },
-      });
   }
-
 
   ngOnInit(): void {
     this.usuarioService.usuarioActual$.subscribe((user) => {
@@ -114,78 +47,61 @@ export class SalidaComponent implements OnInit {
     });
   }
 
-  onSubmit(): void {
-    if (this.formularioSalida.valid) {
-      const nuevoTicket: any = this.formularioSalida.value;
-      nuevoTicket.usuarioEntrego = this.usuario?.nombre || '';
-      nuevoTicket.fechaHoraSalida = format(new Date(), "yyyy-MM-dd'T'HH:mm:ss");
-
-      this.ticketService
-        .updateTicket(nuevoTicket.codigoBarrasQR, nuevoTicket)
-        .subscribe({
-          next: (respuesta) => {
-            console.log('Ticket actualizado con éxito', respuesta);
-            this.mensajeService.success(
-              'La salida se registró correctamente ✅'
-            );
-
-            // 🔴 Pausar la búsqueda para que no dispare "no encontrado"
-            this.desactivarBusqueda = true;
-            this.ticket = null;
-            this.formularioSalida.reset();
-
-            // Reactivar la búsqueda luego de un pequeño delay
-            setTimeout(() => {
-              this.desactivarBusqueda = false;
-            }, 500);
-          },
-          error: () => {
-            this.mensajeService.error(
-              'Ocurrió un error al registrar la salida'
-            );
-          },
-        });
-    } else {
-      this.mensajeService.error(
-        'Por favor complete todos los campos obligatorios'
-      );
-      this.formularioSalida.markAllAsTouched();
+  buscarTicket(): void {
+    if (this.formularioBusqueda.invalid) {
+      this.mensajeService.error('Por favor, ingrese un código de ticket.');
+      return;
     }
+    const codigo = this.formularioBusqueda.get('codigo')?.value;
+
+    this.ticketService
+      .obtenerPorCodigo(codigo)
+      .pipe(
+        switchMap((ticket) => {
+          if (!ticket) {
+            return of(null);
+          }
+          return this.pagoService
+            .calcularTotal(ticket.codigo)
+            .pipe(map((total) => ({ ...ticket, totalPagar: total })));
+        })
+      )
+      .subscribe({
+        next: (ticketConTotal) => {
+          if (ticketConTotal) {
+            this.ticketEncontrado = ticketConTotal;
+            this.mensajeService.success('Ticket encontrado ✅');
+          } else {
+            this.ticketEncontrado = null;
+            this.mensajeService.error('Ticket no encontrado o ya pagado ❌');
+          }
+        },
+        error: () => {
+          this.ticketEncontrado = null;
+          this.mensajeService.error('Error al buscar el ticket 🚨');
+        },
+      });
   }
 
-  // 🔎 Método de búsqueda manual
-  buscarTicketManual(): void {
-    const codigo = this.formularioSalida.get('codigoBarrasQR')?.value;
-
-    if (!codigo) {
-      this.mensajeService.error('Ingrese un código de barras primero');
+  registrarSalida(): void {
+    if (!this.ticketEncontrado) {
+      this.mensajeService.error('No hay un ticket seleccionado.');
       return;
     }
 
-    this.ticketService.getTicketByCodigo(codigo).subscribe({
-      next: (ticket: Ticket | null) => {
-        if (ticket) {
-          this.formularioSalida.patchValue({
-            usuarioEntrego: ticket.usuarioEntrego,
-            vehiculo: {
-              placa: ticket.vehiculo.placa,
-            },
-          });
+    const ticketSalida: TicketSalidaRequest = {
+      codigo: this.ticketEncontrado.codigo,
+      idUsuarioLogueado: this.usuario?.id || 0,
+    };
 
-          this.mensajeService.success('Ticket encontrado ✅');
-        } else {
-          this.ticket = null;
-
-          this.formularioSalida.patchValue({
-            usuarioEntrego: '',
-            vehiculo: { placa: '' },
-          });
-
-          this.mensajeService.error('Ticket no encontrado ❌');
-        }
+    this.ticketService.actualizarSalida(ticketSalida).subscribe({
+      next: () => {
+        this.mensajeService.success('La salida se registró correctamente ✅');
+        this.ticketEncontrado = null;
+        this.formularioBusqueda.reset();
       },
       error: () => {
-        this.mensajeService.error('Error al buscar el ticket 🚨');
+        this.mensajeService.error('Ocurrió un error al registrar la salida');
       },
     });
   }

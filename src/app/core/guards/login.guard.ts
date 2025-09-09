@@ -9,7 +9,7 @@ export class LoginGuard implements CanActivate {
   constructor(private usuarioService: UsuarioService, private router: Router) {}
 
   canActivate(): boolean {
-    if (this.usuarioService.isLoggedIn()) {
+    if (this.usuarioService.estaLogueado()) {
       // Si ya está logueado, redirige a "tabla"
       this.router.navigate(['/tabla']);
       return false;

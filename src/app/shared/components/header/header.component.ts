@@ -6,7 +6,7 @@ import { TicketService } from '../../../services/ticket.service';
 import { MensajeService } from '../../../services/mensaje.service';
 import { QzService } from '../../../services/qz.service';
 import { CommonModule } from '@angular/common';
-import { TicketCierreTurno } from '../../../models/cierreTurno';
+import { TicketCierreTurnoResponse } from '../../../models/cierreTurno';
 import { CierreTurnoService } from '../../../services/cierre-turno.service';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
@@ -49,16 +49,14 @@ export class HeaderComponent implements OnInit {
 
         if (datosGuardados) {
           const usuario: Usuario = JSON.parse(datosGuardados);
-          const fechaInicial: Date = new Date(usuario.fechaInicioSesion);
-          const fechaFinal: Date = new Date();
 
           // Llamada única que guarda el cierre y devuelve el DTO para imprimir
-          this.cierreTurnoService.crearCierre(fechaInicial, fechaFinal).subscribe({
+          this.cierreTurnoService.crearCierre().subscribe({
             next: async (cierreTurnoDto) => {
               this.mensajeService.success('Cierre de turno guardado correctamente.');
 
               // Generar el texto para el ticket con el DTO recibido
-              const texto = this.generarTicketCierre(cierreTurnoDto, usuario.nombre, fechaInicial, fechaFinal);
+              const texto = this.generarTicketCierre(cierreTurnoDto, usuario.nombre);
 
               // Imprimir
               try {
@@ -86,10 +84,8 @@ export class HeaderComponent implements OnInit {
   }
 
   private generarTicketCierre(
-    cierreTurno: TicketCierreTurno,
+    cierreTurno: TicketCierreTurnoResponse,
     usuario: string,
-    fechaInicio: Date,
-    fechaFinal: Date
   ): string {
 
     // === 0) Constantes ESC/POS ===
@@ -133,46 +129,46 @@ export class HeaderComponent implements OnInit {
     // datos turno
     out += ALIGN_LEFT;
     out += 'Vendedor: ' + (usuario || '') + '\n';
-    out += 'Inicio de turno: ' + (fechaInicio.toLocaleString() || '') + '\n';
-    out += 'Cierre de turno: ' + (fechaFinal.toLocaleString() || '') + '\n';
+    out += 'Inicio de turno: ' + cierreTurno.fechaInicio + '\n';
+    out += 'Cierre de turno: ' + cierreTurno.fechaCierre + '\n';
     out += '\n\n';
 
-    // Tipos de vehículos ENTRANTES
-    out += ALIGN_LEFT;
-    out += '--- VEHICULOS QUE ENTRARON ---\n';
-    out += renderTipos(cierreTurno.tipoVehiculosEntrantes);
-    out += '\n\n';
+    // // Tipos de vehículos ENTRANTES
+    // out += ALIGN_LEFT;
+    // out += '--- VEHICULOS QUE ENTRARON ---\n';
+    // out += renderTipos(cierreTurno.detallesPorParqueadero);
+    // out += '\n\n';
 
-    // Vehículos que ENTRARON
-    out += renderVehiculos(cierreTurno.totalVehiculosQueEntraron);
-    out += '\n';
+    // // Vehículos que ENTRARON
+    // out += renderVehiculos(cierreTurno.totalVehiculosQueEntraron);
+    // out += '\n';
 
-    // Tipos de vehículos SALIENTES
-    out += '--- VEHICULOS QUE SALIERON ---\n';
-    out += renderTipos(cierreTurno.tipoVehiculosSaliente);
-    out += '\n\n';
+    // // Tipos de vehículos SALIENTES
+    // out += '--- VEHICULOS QUE SALIERON ---\n';
+    // out += renderTipos(cierreTurno.tipoVehiculosSaliente);
+    // out += '\n\n';
 
-    // Vehículos que SALIERON
-    out += renderVehiculos(cierreTurno.totalVehiculosQueSalieron);
-    out += '\n';
+    // // Vehículos que SALIERON
+    // out += renderVehiculos(cierreTurno.totalVehiculosQueSalieron);
+    // out += '\n';
 
-    // Tipos de vehículos EN PARQUEADERO
-    out += '--- VEHICULOS EN PARQUEADERO ---\n';
-    out += renderTipos(cierreTurno.tipoVehiculosParqueadero);
-    out += '\n\n';
+    // // Tipos de vehículos EN PARQUEADERO
+    // out += '--- VEHICULOS EN PARQUEADERO ---\n';
+    // out += renderTipos(cierreTurno.tipoVehiculosParqueadero);
+    // out += '\n\n';
 
-    // Vehículos que ESTAN EN PARQUEADERO
-    out += renderVehiculos(cierreTurno.vehiculosEnParqueadero);
-    out += '\n';
+    // // Vehículos que ESTAN EN PARQUEADERO
+    // out += renderVehiculos(cierreTurno.vehiculosEnParqueadero);
+    // out += '\n';
 
-    // Total a pagar
-    out += SEP;
-    out += `TOTAL A ENTREGAR: ${formatCOP(cierreTurno.totalAPagar)}\n\n`;
+    // // Total a pagar
+    // out += SEP;
+    // out += `TOTAL A ENTREGAR: ${formatCOP(cierreTurno.totalAPagar)}\n\n`;
 
-    // Pie y corte
-    out += ALIGN_CENTER;
-    out += '¡Gracias por tu buen trabajo!\n\n';
-    out += CUT_PARTIAL;
+    // // Pie y corte
+    // out += ALIGN_CENTER;
+    // out += '¡Gracias por tu buen trabajo!\n\n';
+    // out += CUT_PARTIAL;
 
     return out;
   }

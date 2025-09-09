@@ -1,5 +1,5 @@
 function actualizarReloj() {
-  const reloj = document.getElementById("relojEntrada");
+  const reloj = document.getElementsByClassName("reloj")[0];
   const ahora = new Date();
   const horas = String(ahora.getHours()).padStart(2, "0");
   const minutos = String(ahora.getMinutes()).padStart(2, "0");

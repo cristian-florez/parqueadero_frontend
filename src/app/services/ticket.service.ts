@@ -2,8 +2,9 @@
 // archivo: ticket.service.ts
 // =============================
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { TicketEntradaRequest } from '../models/tickets';
 import { TicketMensualidadRequest } from '../models/tickets';
@@ -43,13 +44,30 @@ export class TicketService {
 
     if (filtros) {
       Object.entries(filtros).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
+        if (value !== undefined && value !== null && value !== '') {
           params = params.set(key, value.toString());
         }
       });
     }
 
-    return this.http.get<Page<TicketResponse>>(this.apiUrl, { params });
+    return this.http
+      .get<Page<TicketResponse>>(this.apiUrl, { params, observe: 'response' })
+      .pipe(
+        map((response: HttpResponse<Page<TicketResponse>>) => {
+          if (response.status === 204) {
+            // Si no hay contenido, devuelve una página vacía para evitar errores.
+            return {
+              content: [],
+              totalElements: 0,
+              totalPages: 0,
+              number: page,
+              size: size,
+            } as Page<TicketResponse>;
+          }
+          // Si hay contenido, devuelve el cuerpo de la respuesta.
+          return response.body as Page<TicketResponse>;
+        })
+      );
   }
 
   /**
@@ -60,7 +78,7 @@ export class TicketService {
   }
 
   /**
-   * Buscar ticket por código.
+   * Buscar ticket por código. sirve para reimpresion del ticket
    */
   obtenerPorCodigo(codigo: string): Observable<TicketResponse> {
     return this.http.get<TicketResponse>(`${this.apiUrl}/codigo/${codigo}`);

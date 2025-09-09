@@ -58,10 +58,16 @@ export class QzService {
     }
   }
 
+  /**
+   * Obtiene la lista de impresoras disponibles que detecta QZ Tray.
+   */
+  async getPrinters(): Promise<string[]> {
+    await this.conectar();
+    return await qz.printers.find();
+  }
+
   async imprimirTexto(nombreImpresora: string, texto: string): Promise<void> {
     await this.conectar();
-    const printer = await qz.printers.find(nombreImpresora);
-    const cfg = qz.configs.create(printer);
 
     // ESC/POS básico → reset + texto + corte de papel
     const data = [
@@ -71,6 +77,21 @@ export class QzService {
         data: '\x1B\x40' + texto + '\n\n\n' + '\x1D\x56\x00',
       },
     ];
+
+    // Si el nombre es 'SIMULATE', muestra en consola en lugar de imprimir.
+    if (nombreImpresora.toUpperCase() === 'SIMULATE') {
+      console.log('--- SIMULACIÓN DE IMPRESIÓN ---');
+      console.log('Impresora:', nombreImpresora);
+      console.log('Datos a imprimir:', data[0].data);
+      console.log('--- FIN DE SIMULACIÓN ---');
+      return Promise.resolve();
+    }
+
+    const printer = await qz.printers.find(nombreImpresora);
+    if (!printer) {
+      throw new Error(`Impresora no encontrada: ${nombreImpresora}`);
+    }
+    const cfg = qz.configs.create(printer);
 
     await qz.print(cfg, data);
   }

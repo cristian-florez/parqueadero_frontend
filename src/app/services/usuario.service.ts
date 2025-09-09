@@ -63,7 +63,7 @@ export class UsuarioService {
     return this.usuarioActualSubject.value;
   }
 
-  isLoggedIn(): boolean {
+  estaLogueado(): boolean {
     return this.getUsuarioActual() !== null;
   }
 }

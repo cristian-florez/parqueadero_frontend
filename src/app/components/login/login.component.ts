@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { Router } from '@angular/router';
 import { UsuarioService } from '../../services/usuario.service';
 import { CommonModule } from '@angular/common';
-import { Usuario } from '../../models/usuario';
+import { UsuarioLogin } from '../../models/usuario';
 import { MensajeService } from '../../services/mensaje.service';
 
 @Component({
@@ -15,12 +15,12 @@ import { MensajeService } from '../../services/mensaje.service';
 })
 export class LoginComponent {
   formularioLogin: FormGroup;
-  error: string | null = null;
 
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private usuarioService: UsuarioService
+    private usuarioService: UsuarioService,
+    private mensajeService: MensajeService
   ) {
     this.formularioLogin = this.fb.group({
       nombre: ['', Validators.required],
@@ -30,19 +30,18 @@ export class LoginComponent {
 
   onSubmit(): void {
     if (this.formularioLogin.valid) {
-      const credenciales: Usuario = this.formularioLogin.value;
+      const credenciales: UsuarioLogin = this.formularioLogin.value;
 
       this.usuarioService
-        .login(credenciales.nombre, credenciales.cedula)
+        .login(credenciales)
         .subscribe({
-          next: (isLoggedIn) => {
-            if (isLoggedIn) {
+          next: (usuario) => {
+            if (usuario) {
               this.router.navigate(['/tabla']);
             }
           },
-          error: (err) => {
-            console.error('Error de inicio de sesión:', err);
-            this.error = 'Credenciales incorrectas. Por favor, inténtelo de nuevo.';
+          error: () => {
+            this.mensajeService.error('Credenciales incorrectas. Por favor, inténtelo de nuevo.');
           }
         });
     }

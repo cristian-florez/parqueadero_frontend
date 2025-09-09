@@ -2,108 +2,107 @@
   <h3 class="mb-3 text-center">Salida de Vehículo</h3>
   <div class="card shadow-sm">
     <div class="card-body mb-4 p-3">
-      <!-- Barra de información superior: Usuario y Hora -->
+      <!-- Barra de información superior -->
       <div class="mb-4 p-3 bg-light rounded">
-        <!-- Nombre del usuario -->
         <div class="row text-center">
           <div class="col-4">
-            <span class="fw-bold">Usuario</span>
-            <br>
+            <span class="fw-bold">Usuario</span><br />
             <h2 class="text-primary">{{ usuario?.nombre }}</h2>
           </div>
-          <!-- Hora de entrada -->
           <div class="col-4">
             <label class="form-label fw-bold">Hora de Salida</label>
-              <div id="relojEntrada" class="p-2 border rounded text-center fw-bold reloj">
-                00:00:00
-              </div>
+            <div
+              id="relojSalida"
+              class="p-2 border rounded text-center fw-bold reloj"
+            >
+              00:00:00
+            </div>
           </div>
           <div class="col-4 align-items-center">
-            <div *ngIf="ticket" class="card shadow-lg border-0 rounded-4 text-center p-2">
-              <h2 class="text-primary fw-bold mb-0">{{ ticket.pago?.total }}</h2>
+            <div
+              *ngIf="ticketEncontrado && ticketEncontrado.totalPagar"
+              class="card shadow-lg border-0 rounded-4 text-center p-2"
+            >
+              <h2 class="text-primary fw-bold mb-0">
+                {{ ticketEncontrado.totalPagar | currency : '' : 'symbol' : '1.0-0' }}
+              </h2>
               <small class="text-muted">Total</small>
             </div>
           </div>
         </div>
       </div>
 
-      <form [formGroup]="formularioSalida" (ngSubmit)="onSubmit()">
-
-        <!-- Código de barras -->
-        <div class="mb-3  text-center">
-          <label for="codigoBarrasQR" class="form-label fw-bold">Código de Ticket</label>
+      <!-- Formulario de Búsqueda -->
+      <form [formGroup]="formularioBusqueda" (ngSubmit)="buscarTicket()">
+        <div class="mb-3 text-center">
+          <label for="codigo" class="form-label fw-bold"
+            >Código de Ticket</label
+          >
           <div class="input-group">
             <input
               type="text"
               class="form-control"
-              id="codigoBarrasQR"
-              formControlName="codigoBarrasQR"
-              (keydown.enter)="buscarTicketManual()">
-
-            <!-- Botón manual de búsqueda -->
-            <button
-              type="button"
-              class="btn btn-outline-secondary"
-              (click)="buscarTicketManual()">
-              <i class="bi bi-search"></i> <!-- Usa bootstrap-icons -->
+              id="codigo"
+              formControlName="codigo"
+              placeholder="Ingrese el código y presione Buscar"
+            />
+            <button type="submit" class="btn btn-outline-primary">
+              <i class="bi bi-search"></i> Buscar
             </button>
           </div>
-
-          <div *ngIf="formularioSalida.get('codigoBarrasQR')?.touched && formularioSalida.get('codigoBarrasQR')?.hasError('required')" class="text-danger">
-            El código de barras es obligatorio
+          <div
+            *ngIf="
+              formularioBusqueda.get('codigo')?.touched &&
+              formularioBusqueda.get('codigo')?.hasError('required')
+            "
+            class="text-danger"
+          >
+            El código es obligatorio.
           </div>
         </div>
-        <div class="row">
-          <!-- Placa -->
-          <div formGroupName="vehiculo" class="mb-3 col-6 row text-center fw-bold">
-            <!-- Tipo de vehículo -->
-            <div class="col-6">
-              <label for="tipoVehiculo" class="form-label">Tipo de Vehículo</label>
-              <input type="text" class="form-control" id="tipoVehiculo" formControlName="tipo" readonly>
-              <div *ngIf="formularioSalida.get('vehiculo.tipo')?.touched && formularioSalida.get('vehiculo.tipo')?.hasError('required')" class="text-danger">
-                El tipo de vehículo es obligatorio
-              </div>
-            </div>
+      </form>
 
-            <!-- Placa -->
-            <div class="col-6">
-              <label for="placa" class="form-label">Placa</label>
-              <input type="text" class="form-control" id="placa" formControlName="placa" readonly>
-              <div *ngIf="formularioSalida.get('vehiculo.placa')?.touched && formularioSalida.get('vehiculo.placa')?.hasError('required')" class="text-danger">
-                La placa es obligatoria
-              </div>
+      <!-- Detalles del Ticket Encontrado -->
+      <div *ngIf="ticketEncontrado" class="card mt-4">
+        <div class="card-header fw-bold text-center">
+          Detalles del Ticket
+        </div>
+        <div class="card-body">
+          <div class="row text-center">
+            <div class="col-md-3">
+              <p><strong>Placa:</strong> {{ ticketEncontrado.placa }}</p>
             </div>
-          </div>
-          <!--Fecha de entrada-->
-          <div class="mb-3 col-3 text-center fw-bold">
-            <label for="fechaHoraEntrada" class="form-label fw-bold">Fecha de Entrada</label>
-            <input
-              type="text"
-              class="form-control"
-              id="fechaHoraEntrada"
-              formControlName="fechaHoraEntrada"
-              [value]="ticket?.fechaHoraEntrada | date:'dd/MM/yyyy HH:mm'" readonly>
-          </div>
-          <!-- Usuario que recibio -->
-          <div class="mb-3 col-3 text-center fw-bold">
-            <label for="usuarioRecibio" class="form-label">Usuario que recibio</label>
-            <input
-              type="text"
-              class="form-control"
-              id="usuarioRecibio"
-              formControlName="usuarioRecibio" readonly>
-
-            <div *ngIf="formularioSalida.get('fechaHoraSalida')?.touched && formularioSalida.get('fechaHoraSalida')?.hasError('required')" class="text-danger">
-              La fecha de salida es obligatoria
+            <div class="col-md-3">
+              <p>
+                <strong>Tipo:</strong> {{ ticketEncontrado.tipoVehiculo }}
+              </p>
+            </div>
+            <div class="col-md-3">
+              <p>
+                <strong>Entrada:</strong>
+                {{
+                  ticketEncontrado.fechaHoraEntrada | date : "dd/MM/yyyy HH:mm"
+                }}
+              </p>
+            </div>
+            <div class="col-md-3">
+              <p>
+                <strong>Atendido por:</strong>
+                {{ ticketEncontrado.usuarioRecibio }}
+              </p>
             </div>
           </div>
-
-          <!-- Botón -->
-          <button type="submit" class="btn btn-success w-100">
+        </div>
+        <div class="card-footer text-center">
+          <button
+            type="button"
+            class="btn btn-success"
+            (click)="registrarSalida()"
+          >
             Registrar Salida
           </button>
         </div>
-      </form>
+      </div>
     </div>
   </div>
 </div>

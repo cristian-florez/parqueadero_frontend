@@ -1,12 +1,16 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule, DatePipe } from '@angular/common';
 import { CierreTurnoService } from '../../services/cierre-turno.service';
-import { CierreTurno } from '../../models/cierreTurno';
+import { TicketCierreTurnoResponse } from '../../models/cierreTurno';
 import { MensajeService } from '../../services/mensaje.service';
 import { QzService } from '../../services/qz.service';
 import { Page } from '../../core/types/page';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { FiltrosDTO } from '../../models/filtros';
+import { FiltroService } from '../../services/filtro.service';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-turnos',
@@ -16,89 +20,120 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
     ReactiveFormsModule,
     FormsModule,
     MatPaginatorModule,
+    MatExpansionModule,
+    MatIconModule,
   ],
   templateUrl: './turnos.component.html',
   styleUrls: ['./turnos.component.css'],
-  providers: [DatePipe] // Proveer DatePipe
+  providers: [DatePipe],
 })
 export class TurnosComponent implements OnInit {
-  filtroForm: FormGroup;
-  cierres: CierreTurno[] = [];
+  cierres: TicketCierreTurnoResponse[] = [];
 
   public totalElementos = 0;
   public size = 10;
   public index = 0;
+  public filtros = {
+    inicio: '',
+    fin: '',
+    usuario: undefined as string | undefined,
+  };
+  public filtrosAbiertos = false;
+
+  filtrosDTO: FiltrosDTO = {
+    usuarios: [],
+    tiposVehiculo: [],
+    parqueaderos: [],
+  };
 
   constructor(
-    private fb: FormBuilder,
     private cierreTurnoService: CierreTurnoService,
     private mensajeService: MensajeService,
     private qzService: QzService,
-    private datePipe: DatePipe
-  ) {
-    this.filtroForm = this.fb.group({
-      inicio: [''],
-      fin: ['']
-    });
-  }
+    private datePipe: DatePipe,
+    private filtrosService: FiltroService
+  ) {}
 
   ngOnInit(): void {
     this.cargarCierres();
-  }
-
-  cargarCierres(): void {
-    const { inicio, fin } = this.filtroForm.value;
-    this.cierreTurnoService.obtenerCierresPaginados(this.index, this.size, inicio, fin).subscribe({
-      next: (page: Page<CierreTurno>) => {
-        this.cierres = page.content;
-        this.totalElementos = page.totalElements;
-      },
-      error: (err) => {
-        console.error('Error al cargar los cierres de turno:', err);
-        this.mensajeService.error('Error al cargar los cierres de turno.');
-        this.cierres = [];
-        this.totalElementos = 0;
-      }
+    this.filtrosService.getFiltros().subscribe({
+      next: (data) => (this.filtrosDTO = data),
+      error: (err) => console.error('Error cargando filtros', err),
     });
   }
 
-  aplicarFiltros(): void {
-    this.index = 0; // Reset to first page when filters are applied
-    this.cargarCierres();
+  cargarCierres(): void {
+    this.cierreTurnoService
+      .obtenerTodos(this.index, this.size, this.filtros)
+      .subscribe({
+        next: (page: Page<TicketCierreTurnoResponse>) => {
+          this.cierres = page.content;
+          this.totalElementos = page.totalElements;
+        },
+        error: () => {
+          this.mensajeService.error('Error al cargar los cierres de turno.');
+          this.cierres = [];
+          this.totalElementos = 0;
+        },
+      });
   }
 
-  limpiarFiltros(): void {
-    this.filtroForm.reset({ inicio: '', fin: '' });
-    this.index = 0; // Reset to first page
-    this.cargarCierres();
-  }
-
-  cambiarPagina(event: PageEvent): void {
+  public cambiarPagina(event: PageEvent): void {
     this.index = event.pageIndex;
     this.size = event.pageSize;
     this.cargarCierres();
   }
 
-  async imprimirCierre(cierre: CierreTurno): Promise<void> {
-    try {
-      const texto = this.generarTicketHistorial(cierre);
-      await this.qzService.imprimirTexto('ticket', texto);
-      this.mensajeService.success('Enviando ticket a la impresora.');
-    } catch (error) {
-      this.mensajeService.error('No se pudo imprimir el ticket.');
-      console.error(error);
-    }
+  public aplicarFiltros(): void {
+    this.index = 0;
+    this.cargarCierres();
   }
 
-  private generarTicketHistorial(cierre: CierreTurno): string {
+  public limpiarFiltros(): void {
+    this.filtros = {
+      inicio: '',
+      fin: '',
+      usuario: undefined,
+    };
+  }
+
+  /**
+   * Método reutilizable para imprimir un cierre de turno por su ID.
+   * @param id El ID del cierre de turno a reimprimir.
+   */
+  async reimprimirCierrePorId(id: number): Promise<void> {
+    this.cierreTurnoService.obtenerCierrePorId(id).subscribe({
+      next: async (cierreInfo) => {
+
+        try {
+          const texto = this.generarTicketHistorial(cierreInfo);
+          await this.qzService.imprimirTexto('SIMULATE', texto);
+          this.mensajeService.success('Enviando reimpresión a la impresora.');
+        } catch (error) {
+          this.mensajeService.error('No se pudo reimprimir el ticket.');
+          console.error(error);
+        }
+      },
+      error: (err) => {
+        this.mensajeService.error(
+          'No se pudo encontrar el cierre de turno para reimprimir.'
+        );
+        console.error(err);
+      },
+    });
+  }
+
+  private generarTicketHistorial(cierre: TicketCierreTurnoResponse): string {
     const INIT = '\x1B\x40';
     const ALIGN_CENTER = '\x1B\x61\x01';
     const ALIGN_LEFT = '\x1B\x61\x00';
     const CUT_PARTIAL = '\x1D\x56\x42\x00';
     const SEP = '------------------------\n';
 
-    const formatCOP = (value: number) => '$' + Math.round(value).toLocaleString('es-CO');
-    const formatDate = (date: string) => this.datePipe.transform(date, 'dd/MM/yy, h:mm a') || '';
+    const formatCOP = (value: number) =>
+      '$' + Math.round(value).toLocaleString('es-CO');
+    const formatDate = (date: string) =>
+      this.datePipe.transform(date, 'dd/MM/yy, h:mm a') || '';
 
     let out = '';
     out += INIT;
@@ -109,22 +144,11 @@ export class TurnosComponent implements OnInit {
 
     out += ALIGN_LEFT;
     out += `Vendedor: ${cierre.nombreUsuario}\n`;
-    out += `Inicio: ${formatDate(cierre.fechaInicioTurno)}\n`;
-    out += `Fin: ${formatDate(cierre.fechaFinTurno)}\n`;
+    out += `Inicio: ${formatDate(cierre.fechaInicio)}\n`;
+    out += `Fin: ${formatDate(cierre.fechaCierre)}\n`;
     out += SEP;
 
-    out += `Total Ingresos: ${formatCOP(cierre.totalIngresos)}\n`;
-    out += SEP;
-
-    out += '--- RESUMEN ---\n';
-    out += `Vehiculos que entraron: ${cierre.totalVehiculosEntraron}\n`;
-    out += `(${cierre.detalleEntrantes || 'N/A'})\n\n`;
-
-    out += `Vehiculos que salieron: ${cierre.totalVehiculosSalieron}\n`;
-    out += `(${cierre.detalleSalientes || 'N/A'})\n\n`;
-
-    out += `Vehiculos restantes: ${cierre.vehiculosRestantes}\n`;
-    out += `(${cierre.detalleRestantes || 'N/A'})\n`;
+    out += `Total Ingresos: ${formatCOP(cierre.total)}\n`;
     out += SEP;
 
     out += ALIGN_CENTER;

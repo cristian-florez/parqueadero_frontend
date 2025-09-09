@@ -1,14 +1,6 @@
 import { TotalVehiculosDTO } from "./vehiculos";
 import { Vehiculo } from "./vehiculos";
 
-export interface CierreReimpresionResponse {
-  nombreUsuario: string;
-  fechaInicioTurno: string;
-  fechaFinTurno: string;
-  totalIngresos: number;
-  detallesJson: string;
-}
-
 export interface DetalleParqueaderoCierre {
   listaVehiculosEntrantes: Vehiculo[];
   listaVehiculosSalientes: Vehiculo[];
@@ -20,14 +12,10 @@ export interface DetalleParqueaderoCierre {
   listaTiposVehiculosParqueadero: TotalVehiculosDTO[];
 }
 
-export interface TicketCierreResponse {
-  usuario: string;
-  fechaInicio: string;
-  fechaFinal: string;
-  total: number;
-}
 
-export interface TicketCierreTurno {
+export interface TicketCierreTurnoResponse {
+  id: number;
+  nombreUsuario: string;
   fechaInicio: string;
   fechaCierre: string;
   total: number;

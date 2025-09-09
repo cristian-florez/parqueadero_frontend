@@ -6,9 +6,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Page } from '../core/types/page';
-import { TicketCierreTurno } from '../models/cierreTurno';
-import { TicketCierreResponse } from '../models/cierreTurno';
-import { CierreReimpresionResponse } from '../models/cierreTurno';
+import { TicketCierreTurnoResponse } from '../models/cierreTurno';
 
 @Injectable({
   providedIn: 'root',
@@ -21,7 +19,7 @@ export class CierreTurnoService {
   /**
    * Crear un nuevo cierre de turno para el usuario logueado.
    */
-  crearCierre(): Observable<TicketCierreTurno> {
+  crearCierre(): Observable<TicketCierreTurnoResponse> {
     const usuarioData = localStorage.getItem('usuarioActual');
     if (!usuarioData) {
       throw new Error(
@@ -31,7 +29,7 @@ export class CierreTurnoService {
     const sesion = JSON.parse(usuarioData);
     const idUsuario = sesion.id;
 
-    return this.http.post<TicketCierreTurno>(
+    return this.http.post<TicketCierreTurnoResponse>(
       `${this.apiUrl}/${idUsuario}`,
       null
     );
@@ -43,25 +41,31 @@ export class CierreTurnoService {
   obtenerTodos(
     page: number,
     size: number,
-    inicio?: string,
-    fin?: string,
-    usuario?: string
-  ): Observable<Page<TicketCierreResponse>> {
+    filtros?: {
+      inicio?: string;
+      fin?: string;
+      usuario?: string;
+    }
+  ): Observable<Page<TicketCierreTurnoResponse>> {
     let params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
 
-    if (inicio) params = params.set('inicio', inicio);
-    if (fin) params = params.set('fin', fin);
-    if (usuario) params = params.set('usuario', usuario);
+    if (filtros) {
+        Object.entries(filtros).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          params = params.set(key, value.toString());
+        }
+      });
+    }
 
-    return this.http.get<Page<TicketCierreResponse>>(this.apiUrl, { params });
+    return this.http.get<Page<TicketCierreTurnoResponse>>(this.apiUrl, { params });
   }
 
   /**
    * Obtener un cierre específico por su ID (reimpresión).
    */
-  obtenerCierrePorId(id: number): Observable<CierreReimpresionResponse> {
-    return this.http.get<CierreReimpresionResponse>(`${this.apiUrl}/${id}`);
+  obtenerCierrePorId(id: number): Observable<TicketCierreTurnoResponse> {
+    return this.http.get<TicketCierreTurnoResponse>(`${this.apiUrl}/${id}`);
   }
 }

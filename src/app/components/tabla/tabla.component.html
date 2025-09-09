@@ -1,97 +1,205 @@
 <div class="row">
   <!--Reportes-->
   <div>
+    <mat-accordion class="mx-5">
+      <mat-expansion-panel [(expanded)]="filtrosAbiertos">
+        <mat-expansion-panel-header>
+          <mat-panel-title>Filtros de búsqueda</mat-panel-title>
+        </mat-expansion-panel-header>
 
-<mat-accordion class="mx-5">
-  <mat-expansion-panel [(expanded)]="filtrosAbiertos">
-    <mat-expansion-panel-header>
-      <mat-panel-title>Filtros de búsqueda</mat-panel-title>
-    </mat-expansion-panel-header>
+        <!-- Fila 1 -->
+        <div class="row my-3 mx-1">
+          <div class="col">
+            <label for="codigo" class="form-label">Código</label>
+            <input
+              id="codigo"
+              type="text"
+              class="form-control"
+              placeholder="Ingrese el codigo del ticket"
+              [(ngModel)]="filtros.codigo"
+              name="codigo"
+            />
+          </div>
 
-    <!-- Fila 1 -->
-    <div class="row my-3 mx-1">
-      <div class="col">
-        <input type="text" class="form-control" placeholder="Código" [(ngModel)]="filtros.codigo">
-      </div>
-      <div class="col">
-        <input type="text" class="form-control" placeholder="Placa" [(ngModel)]="filtros.placa">
-      </div>
-      <div class="col">
-        <input type="text" class="form-control" placeholder="Tipo" [(ngModel)]="filtros.tipo">
-      </div>
-      <div class="col">
-        <select class="form-select" [(ngModel)]="filtros.pagado">
-          <option [ngValue]="undefined">Todos</option>
-          <option [ngValue]="true">Pagados</option>
-          <option [ngValue]="false">No Pagados</option>
-        </select>
-      </div>
+          <div class="col">
+            <label for="placa" class="form-label">Placa</label>
+            <input
+              id="placa"
+              type="text"
+              class="form-control"
+              placeholder="Ingrese la placa completa"
+              [(ngModel)]="filtros.placa"
+              name="placa"
+            />
+          </div>
+
+          <div class="col">
+            <label for="tipo" class="form-label">Tipo de Vehículo</label>
+            <select
+              id="tipo"
+              class="form-select"
+              [(ngModel)]="filtros.tipoVehiculo"
+              name="tipo"
+            >
+              <option [ngValue]="undefined">Todos</option>
+              <option *ngFor="let t of filtrosDTO.tiposVehiculo" [ngValue]="t">
+                {{ t }}
+              </option>
+            </select>
+          </div>
+
+          <div class="col">
+            <label for="pagado" class="form-label">Estado de Pago</label>
+            <select
+              id="pagado"
+              class="form-select"
+              [(ngModel)]="filtros.pagado"
+              name="pagado"
+            >
+              <option [ngValue]="undefined">Todos</option>
+              <option [ngValue]="true">Pagados</option>
+              <option [ngValue]="false">No Pagados</option>
+            </select>
+          </div>
+
+          <div class="col">
+            <label for="parqueadero" class="form-label">Parqueadero</label>
+            <select
+              id="parqueadero"
+              class="form-select"
+              [(ngModel)]="filtros.parqueadero"
+              name="parqueadero"
+            >
+              <option [ngValue]="undefined">Todos</option>
+              <option *ngFor="let p of filtrosDTO.parqueaderos" [ngValue]="p">
+                {{ p }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Fila 2 -->
+        <div class="row mb-3 mx-1">
+          <div class="col">
+            <label for="usuarioRecibio" class="form-label"
+              >Usuario Recibió</label
+            >
+            <select
+              id="usuarioRecibio"
+              class="form-select"
+              [(ngModel)]="filtros.usuarioRecibio"
+              name="usuarioRecibio"
+            >
+              <option [ngValue]="undefined">Todos</option>
+              <option *ngFor="let u of filtrosDTO.usuarios" [ngValue]="u">
+                {{ u }}
+              </option>
+            </select>
+          </div>
+
+          <div class="col">
+            <label for="usuarioEntrego" class="form-label"
+              >Usuario Entregó</label
+            >
+            <input
+              id="usuarioEntrego"
+              type="text"
+              class="form-control"
+              placeholder="Ej: Juan Pérez"
+              [(ngModel)]="filtros.usuarioEntrego"
+              name="usuarioEntrego"
+            />
+          </div>
+
+          <div class="col">
+            <label for="fechaInicio" class="form-label">Fecha Inicio</label>
+            <input
+              id="fechaInicio"
+              type="datetime-local"
+              class="form-control"
+              [(ngModel)]="filtros.fechaInicio"
+              name="fechaInicio"
+            />
+          </div>
+
+          <div class="col">
+            <label for="fechaFin" class="form-label">Fecha Fin</label>
+            <input
+              id="fechaFin"
+              type="datetime-local"
+              class="form-control"
+              [(ngModel)]="filtros.fechaFin"
+              name="fechaFin"
+            />
+          </div>
+        </div>
+
+        <!-- Acciones del panel -->
+        <div class="d-flex gap-2 justify-content-end mb-2 mx-1">
+          <button class="btn btn-outline-secondary" (click)="limpiarFiltros()">
+            Limpiar
+          </button>
+          <button class="btn btn-primary" (click)="aplicarFiltros()">
+            Buscar
+          </button>
+        </div>
+      </mat-expansion-panel>
+    </mat-accordion>
+  </div>
+  <div class="container mt-4">
+    <h3 class="mb-3 text-center">Registro de Vehículos</h3>
+    <div class="table-responsive shadow-sm rounded">
+      <table class="table table-hover align-middle border text-center">
+        <thead class="table-dark">
+          <tr>
+            <th scope="col" class="border-end">Codigo</th>
+            <th scope="col" class="border-end">Tipo Vehículo</th>
+            <th scope="col" class="border-end">Placa</th>
+            <th scope="col" class="border-end">Fecha Entrada</th>
+            <th scope="col" class="border-end">Fecha Salida</th>
+            <th scope="col" class="border-end">Estado</th>
+            <th scope="col" class="border-end">Recibió</th>
+            <th scope="col" class="border-end">Entregó</th>
+            <th scope="col" class="border-end">Total</th>
+            <th scope="col" class="border-end">Parqueadero</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let ticket of tickets">
+            <td class="border-end">{{ ticket.codigo }}</td>
+            <td class="border-end">{{ ticket.tipoVehiculo }}</td>
+            <td class="border-end">{{ ticket.placa }}</td>
+            <td class="border-end">
+              {{ ticket.fechaHoraEntrada | date : "dd/MM/yyyy HH:mm" }}
+            </td>
+            <td class="border-end">
+              {{ ticket.fechaHoraSalida | date : "dd/MM/yyyy HH:mm" }}
+            </td>
+            <td class="border-end">
+              <span
+                class="badge"
+                [ngClass]="{
+                  'bg-success': ticket.estadoPago,
+                  'bg-danger': !ticket.estadoPago
+                }"
+                >{{ ticket.estadoPago ? "pago" : "Debe" }}</span
+              >
+            </td>
+            <td class="border-end">{{ ticket.usuarioRecibio }}</td>
+            <td class="border-end">{{ ticket.usuarioEntrego }}</td>
+            <td class="border-end">{{ ticket.totalPagar }}</td>
+            <td class="border-end">{{ ticket.parqueadero }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <mat-paginator
+        [length]="totalElementos"
+        [pageSize]="size"
+        [pageIndex]="index"
+        [pageSizeOptions]="[5, 10, 20]"
+        (page)="cambiarPagina($event)"
+      >
+      </mat-paginator>
     </div>
-
-    <!-- Fila 2 -->
-    <div class="row mb-3 mx-1">
-      <div class="col">
-        <input type="text" class="form-control" placeholder="Usuario Recibió" [(ngModel)]="filtros.usuarioRecibio">
-      </div>
-      <div class="col">
-        <input type="text" class="form-control" placeholder="Usuario Entregó" [(ngModel)]="filtros.usuarioEntrego">
-      </div>
-      <div class="col">
-        <input type="datetime-local" class="form-control" [(ngModel)]="filtros.fechaInicio">
-      </div>
-      <div class="col">
-        <input type="datetime-local" class="form-control" [(ngModel)]="filtros.fechaFin">
-      </div>
-    </div>
-
-    <!-- Acciones del panel -->
-    <div class="d-flex gap-2 justify-content-end mb-2 mx-1">
-      <button class="btn btn-outline-secondary" (click)="limpiarFiltros()">Limpiar</button>
-      <button class="btn btn-primary" (click)="aplicarFiltros()">Buscar</button>
-    </div>
-  </mat-expansion-panel>
-</mat-accordion>
-
-</div>
-<div class="container mt-4">
-  <h3 class="mb-3 text-center">Registro de Vehículos</h3>
-  <div class="table-responsive shadow-sm rounded">
-    <table class="table table-hover align-middle border text-center">
-      <thead class="table-dark">
-        <tr>
-          <th scope="col" class="border-end">Codigo</th>
-          <th scope="col" class="border-end">Tipo Vehículo</th>
-          <th scope="col" class="border-end">Placa</th>
-          <th scope="col" class="border-end">Fecha Entrada</th>
-          <th scope="col" class="border-end">Fecha Salida</th>
-          <th scope="col" class="border-end">Estado</th>
-          <th scope="col" class="border-end">Recibió</th>
-          <th scope="col" class="border-end">Entregó</th>
-          <th scope="col">Total</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let ticket of tickets">
-          <td class="border-end">{{ ticket.codigoBarrasQR }}</td>
-          <td class="border-end">{{ ticket.vehiculo.tipo }}</td>
-          <td class="border-end">{{ ticket.vehiculo.placa }}</td>
-          <td class="border-end">{{ ticket.fechaHoraEntrada | date: 'dd/MM/yyyy HH:mm' }}</td>
-          <td class="border-end">{{ ticket.fechaHoraSalida | date: 'dd/MM/yyyy HH:mm' }}</td>
-          <td class="border-end">
-            <span class="badge" [ngClass]="{ 'bg-danger': ticket.pagado === false, 'bg-success': ticket.pagado === true }">{{ ticket.pagado ? 'pago' : 'Debe' }}</span>
-          </td>
-          <td class="border-end">{{ ticket.usuarioRecibio }}</td>
-          <td class="border-end">{{ ticket.usuarioEntrego }}</td>
-          <td>{{ ticket.pago?.total }}</td>
-        </tr>
-      </tbody>
-    </table>
-    <mat-paginator
-      [length]="totalElementos"
-      [pageSize]="size"
-      [pageIndex]="index"
-      [pageSizeOptions]="[5, 10, 20]"
-      (page)="cambiarPagina($event)">
-    </mat-paginator>
   </div>
 </div>
