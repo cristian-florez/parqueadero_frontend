@@ -11,6 +11,8 @@ import { TicketMensualidadRequest } from '../models/tickets';
 import { TicketSalidaRequest } from '../models/tickets';
 import { TicketResponse } from '../models/tickets';
 import { Page } from '../core/types/page';
+import { TicketCierreTurnoResponse } from '../models/cierreTurno';
+import { DatePipe } from '@angular/common';
 
 @Injectable({
   providedIn: 'root',
@@ -18,7 +20,9 @@ import { Page } from '../core/types/page';
 export class TicketService {
   private apiUrl = `${environment.apiUrl}/tickets`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private datePipe: DatePipe,
+
+  ) {}
 
   /**
    * Obtener todos los tickets con paginación y filtros opcionales.
@@ -115,5 +119,106 @@ export class TicketService {
    */
   eliminar(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  public generarTicketHistorial(cierre: TicketCierreTurnoResponse): string {
+    const INIT = '\x1B\x40';
+    const ALIGN_CENTER = '\x1B\x61\x01';
+    const ALIGN_LEFT = '\x1B\x61\x00';
+    const CUT_PARTIAL = '\x1D\x56\x42\x00';
+    const SEP = '------------------------\n';
+
+    const formatCOP = (value: number) =>
+      '$' + Math.round(value).toLocaleString('es-CO');
+    const formatDate = (date: string) =>
+      this.datePipe.transform(date, 'dd/MM/yy, h:mm a') || '';
+
+    let out = '';
+    out += INIT;
+    out += ALIGN_CENTER;
+    out += 'ESTACION DE SERVICIO EL SAMAN\n';
+    out += 'Copia de Cierre de Turno\n';
+    out += SEP;
+
+    out += ALIGN_LEFT;
+    out += `${formatDate(cierre.fechaInicio)} - ${formatDate(
+      cierre.fechaCierre
+    )}\n`;
+    out += `Vendedor: ${cierre.nombreUsuario}\n`;
+    out += SEP;
+
+    out += `Total Ingresos: ${formatCOP(cierre.total)}\n`;
+    out += SEP;
+
+    // recorrer parqueaderos
+    for (const [parqueadero, detalle] of Object.entries(
+      cierre.detallesPorParqueadero
+    )) {
+      out += ALIGN_CENTER;
+      out += `=== ${parqueadero.toUpperCase()} ===\n`;
+      out += ALIGN_LEFT;
+      out += `Total a pagar: ${formatCOP(detalle.totalAPagar)}\n`;
+
+      if (detalle.listaVehiculosEntrantes?.length) {
+        out += 'Vehículos Entrantes:\n';
+        if (detalle.listaTiposVehiculosEntrantes?.length) {
+          detalle.listaTiposVehiculosEntrantes.forEach((t) => {
+            out += `|${t.tipo}: ${t.cantidad}|`;
+          });
+          out += '\n';
+        }
+        detalle.listaVehiculosEntrantes.forEach((v) => {
+          out += ` - ${v.placa}--${v.tipo}\n`;
+        });
+        out += '\n\n';
+      }
+
+      if (detalle.listaVehiculosSalientes?.length) {
+        out += 'Vehículos Salientes:\n';
+        if (detalle.listaTiposVehiculosSalientes?.length) {
+          out += 'Tipos Salientes:\n';
+          detalle.listaTiposVehiculosSalientes.forEach((t) => {
+            out += `|${t.tipo}: ${t.cantidad}|`;
+          });
+          out += '\n';
+        }
+        detalle.listaVehiculosSalientes.forEach((v) => {
+          out += ` - ${v.placa}--${v.tipo}--${v.totalCobrado}\n`;
+        });
+        out += '\n\n';
+      }
+
+      if (detalle.vehiculosMensualidad?.length) {
+        out += 'Vehículos Mensualidad:\n';
+        detalle.vehiculosMensualidad.forEach((v) => {
+          out += ` - ${v.placa}--${v.tipo}--${v.totalCobrado}\n`;
+        });
+        out += '\n\n';
+      }
+
+      if (detalle.vehiculosEnParqueadero?.length) {
+        out += 'Vehículos en Parqueadero:\n';
+        if (detalle.listaTiposVehiculosParqueadero?.length) {
+          out += 'Tipos en Parqueadero:\n';
+          detalle.listaTiposVehiculosParqueadero.forEach((t) => {
+            out += `|${t.tipo}: ${t.cantidad}|`;
+          });
+          out += '\n';
+        }
+        detalle.vehiculosEnParqueadero.forEach((v) => {
+          out += ` - ${v.placa}--${v.tipo}\n`;
+        });
+        out += '\n\n';
+      }
+
+      out += SEP;
+      out += SEP;
+    }
+
+    out += ALIGN_CENTER;
+    out += '¡Gracias por tu buen trabajo!\n\n';
+    out += CUT_PARTIAL;
+
+    return out;
   }
 }

@@ -11,6 +11,7 @@ import { FiltrosDTO } from '../../models/filtros';
 import { FiltroService } from '../../services/filtro.service';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
+import { TicketService } from '../../services/ticket.service';
 
 @Component({
   selector: 'app-turnos',
@@ -25,7 +26,6 @@ import { MatIconModule } from '@angular/material/icon';
   ],
   templateUrl: './turnos.component.html',
   styleUrls: ['./turnos.component.css'],
-  providers: [DatePipe],
 })
 export class TurnosComponent implements OnInit {
   cierres: TicketCierreTurnoResponse[] = [];
@@ -50,8 +50,8 @@ export class TurnosComponent implements OnInit {
     private cierreTurnoService: CierreTurnoService,
     private mensajeService: MensajeService,
     private qzService: QzService,
-    private datePipe: DatePipe,
-    private filtrosService: FiltroService
+    private filtrosService: FiltroService,
+    private ticketService: TicketService
   ) {}
 
   ngOnInit(): void {
@@ -104,9 +104,8 @@ export class TurnosComponent implements OnInit {
   async reimprimirCierrePorId(id: number): Promise<void> {
     this.cierreTurnoService.obtenerCierrePorId(id).subscribe({
       next: async (cierreInfo) => {
-
         try {
-          const texto = this.generarTicketHistorial(cierreInfo);
+          const texto = this.ticketService.generarTicketHistorial(cierreInfo);
           await this.qzService.imprimirTexto('SIMULATE', texto);
           this.mensajeService.success('Enviando reimpresión a la impresora.');
         } catch (error) {
@@ -123,38 +122,6 @@ export class TurnosComponent implements OnInit {
     });
   }
 
-  private generarTicketHistorial(cierre: TicketCierreTurnoResponse): string {
-    const INIT = '\x1B\x40';
-    const ALIGN_CENTER = '\x1B\x61\x01';
-    const ALIGN_LEFT = '\x1B\x61\x00';
-    const CUT_PARTIAL = '\x1D\x56\x42\x00';
-    const SEP = '------------------------\n';
 
-    const formatCOP = (value: number) =>
-      '$' + Math.round(value).toLocaleString('es-CO');
-    const formatDate = (date: string) =>
-      this.datePipe.transform(date, 'dd/MM/yy, h:mm a') || '';
-
-    let out = '';
-    out += INIT;
-    out += ALIGN_CENTER;
-    out += 'ESTACION DE SERVICIO EL SAMAN\n';
-    out += 'Copia de Cierre de Turno\n';
-    out += SEP;
-
-    out += ALIGN_LEFT;
-    out += `Vendedor: ${cierre.nombreUsuario}\n`;
-    out += `Inicio: ${formatDate(cierre.fechaInicio)}\n`;
-    out += `Fin: ${formatDate(cierre.fechaCierre)}\n`;
-    out += SEP;
-
-    out += `Total Ingresos: ${formatCOP(cierre.total)}\n`;
-    out += SEP;
-
-    out += ALIGN_CENTER;
-    out += '¡Gracias por tu buen trabajo!\n\n';
-    out += CUT_PARTIAL;
-
-    return out;
-  }
 }
+

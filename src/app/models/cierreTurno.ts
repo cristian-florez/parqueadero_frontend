@@ -1,11 +1,11 @@
-import { TotalVehiculosDTO } from "./vehiculos";
+import { TotalVehiculosDTO, VehiculoCierre } from "./vehiculos";
 import { Vehiculo } from "./vehiculos";
 
 export interface DetalleParqueaderoCierre {
   listaVehiculosEntrantes: Vehiculo[];
-  listaVehiculosSalientes: Vehiculo[];
+  listaVehiculosSalientes: VehiculoCierre[];
   totalAPagar: number;
-  vehiculosMensualidad: Vehiculo[];
+  vehiculosMensualidad: VehiculoCierre[];
   vehiculosEnParqueadero: Vehiculo[];
   listaTiposVehiculosEntrantes: TotalVehiculosDTO[];
   listaTiposVehiculosSalientes: TotalVehiculosDTO[];
