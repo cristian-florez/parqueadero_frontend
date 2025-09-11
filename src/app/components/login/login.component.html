@@ -1,11 +1,12 @@
-<div class="container d-flex justify-content-center align-items-center min-vh-100">
-  <div class="card shadow-lg p-4" style="max-width: 400px; width: 100%;">
+<div
+  class="container d-flex justify-content-center align-items-center min-vh-100"
+>
+  <div class="card shadow-lg p-4" style="max-width: 400px; width: 100%">
     <!-- Título -->
     <h2 class="text-center mb-3">Iniciar Turno</h2>
 
     <!-- Formulario -->
     <form [formGroup]="formularioLogin" (ngSubmit)="onSubmit()">
-
       <!-- Nombre -->
       <div class="mb-3">
         <label for="nombre" class="form-label">Nombre</label>
@@ -34,12 +35,15 @@
       <button
         type="submit"
         class="btn btn-primary w-100"
-        [disabled]="formularioLogin.invalid">
+        [disabled]="formularioLogin.invalid"
+      >
         Ingresar
       </button>
 
-      <!-- Mensaje de error -->
-
+      <!-- Mensaje de error fijo -->
+      <div *ngIf="mensajeError" class="alert alert-danger mt-3">
+        {{ mensajeError }}
+      </div>
     </form>
   </div>
 </div>

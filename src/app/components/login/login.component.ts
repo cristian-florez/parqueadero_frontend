@@ -1,5 +1,10 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { Router } from '@angular/router';
 import { UsuarioService } from '../../services/usuario.service';
 import { CommonModule } from '@angular/common';
@@ -15,6 +20,7 @@ import { MensajeService } from '../../services/mensaje.service';
 })
 export class LoginComponent {
   formularioLogin: FormGroup;
+  mensajeError: string = '';
 
   constructor(
     private fb: FormBuilder,
@@ -32,18 +38,21 @@ export class LoginComponent {
     if (this.formularioLogin.valid) {
       const credenciales: UsuarioLogin = this.formularioLogin.value;
 
-      this.usuarioService
-        .login(credenciales)
-        .subscribe({
-          next: (usuario) => {
-            if (usuario) {
-              this.router.navigate(['/tabla']);
-            }
-          },
-          error: () => {
-            this.mensajeService.error('Credenciales incorrectas. Por favor, inténtelo de nuevo.');
+      this.usuarioService.login(credenciales).subscribe({
+        next: (usuario) => {
+          if (usuario) {
+            this.router.navigate(['/tabla']);
           }
-        });
+        },
+        error: (err) => {
+          if (err.status === 409) {
+            this.mensajeError = 'Ya existe un turno activo.';
+          } else {
+            this.mensajeError =
+              'Credenciales incorrectas. Por favor, inténtelo de nuevo.';
+          }
+        },
+      });
     }
   }
 }

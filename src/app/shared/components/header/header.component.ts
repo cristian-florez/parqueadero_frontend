@@ -16,7 +16,7 @@ import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.compone
   imports: [CommonModule, RouterModule, MatDialogModule],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css'],
-  providers: [DatePipe], 
+  providers: [DatePipe],
 })
 export class HeaderComponent implements OnInit {
   usuario: Usuario | null = null;
@@ -51,7 +51,7 @@ export class HeaderComponent implements OnInit {
             const texto = this.ticketService.generarTicketHistorial(cierreTurnoDto);
 
             try {
-              await this.qzService.imprimirTexto('SIMULATE', texto);
+              await this.qzService.imprimirTexto('ticket', texto);
             } catch (err) {
               this.mensajeService.error('No se pudo imprimir el ticket de cierre.');
               console.error(err);

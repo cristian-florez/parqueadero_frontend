@@ -106,7 +106,7 @@ export class TurnosComponent implements OnInit {
       next: async (cierreInfo) => {
         try {
           const texto = this.ticketService.generarTicketHistorial(cierreInfo);
-          await this.qzService.imprimirTexto('SIMULATE', texto);
+          await this.qzService.imprimirTexto('ticket', texto);
           this.mensajeService.success('Enviando reimpresión a la impresora.');
         } catch (error) {
           this.mensajeService.error('No se pudo reimprimir el ticket.');

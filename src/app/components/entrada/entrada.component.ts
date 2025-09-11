@@ -302,7 +302,7 @@ export class EntradaComponent implements OnInit {
     const texto = this.generarEscPos(ticket, tipo);
     try {
       // Usamos 'SIMULATE' para mostrar en consola en lugar de imprimir
-      await this.qzService.imprimirTexto('SIMULATE', texto);
+      await this.qzService.imprimirTexto('ticket', texto);
       this.mensajeService.success('El ticket se registró correctamente ✅');
     } catch (err) {
       this.mensajeService.error('Ocurrió un error al registrar el ticket');
@@ -325,7 +325,7 @@ export class EntradaComponent implements OnInit {
             const texto = this.generarEscPos(ticket, tipoTicket);
             try {
               await this.qzService.imprimirTexto(
-                'SIMULATE',
+                'ticket',
                 texto
               );
               this.mensajeService.success('Ticket reimpreso correctamente.');

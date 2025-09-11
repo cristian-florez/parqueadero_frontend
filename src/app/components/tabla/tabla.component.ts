@@ -40,7 +40,7 @@ export class TablaComponent implements OnInit {
     placa: '',
     tipoVehiculo: undefined as string | undefined,
     usuarioRecibio: undefined as string | undefined,
-    usuarioEntrego: '',
+    usuarioEntrego: undefined as string | undefined,
     parqueadero: undefined as string | undefined,
     fechaInicio: undefined as string | undefined,
     fechaFin: undefined as string | undefined,

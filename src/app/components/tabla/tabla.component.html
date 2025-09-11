@@ -96,19 +96,21 @@
               </option>
             </select>
           </div>
-
           <div class="col">
             <label for="usuarioEntrego" class="form-label"
               >Usuario Entregó</label
             >
-            <input
+            <select
               id="usuarioEntrego"
-              type="text"
-              class="form-control"
-              placeholder="Ej: Juan Pérez"
+              class="form-select"
               [(ngModel)]="filtros.usuarioEntrego"
               name="usuarioEntrego"
-            />
+            >
+              <option [ngValue]="undefined">Todos</option>
+              <option *ngFor="let u of filtrosDTO.usuarios" [ngValue]="u">
+                {{ u }}
+              </option>
+            </select>
           </div>
 
           <div class="col">
